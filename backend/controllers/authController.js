@@ -11,13 +11,16 @@ const registerUser = async (req, res) => {
     if (userExists) {
       return res.status(400).json({ message: 'User already exists' });
     }
+    if (role && role !== 'Student') {
+      return res.status(403).json({ message: 'Không được phép tự đăng ký với vai trò nhân sự hoặc quản trị' });
+    }
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
     const user = await User.create({
       name,
       email,
       password: hashedPassword,
-      role: role || 'Student'
+      role: 'Student'
     });
     if (user) {
       res.status(201).json({
@@ -37,8 +40,13 @@ const registerUser = async (req, res) => {
 const authUser = async (req, res) => {
   const { email, password } = req.body;
   try {
-    const user = await User.findOne({ email }).populate('enrolledCourse assignedCourses');
+    const user = await User.findOne({ email });
     if (user && (await bcrypt.compare(password, user.password))) {
+      if (user.status === 'inactive') {
+        return res.status(401).json({ message: 'Tài khoản đã bị vô hiệu hóa' });
+      }
+      user.lastLogin = new Date();
+      await user.save();
       const userObj = user.toObject();
       delete userObj.password;
       res.json({
@@ -54,8 +62,11 @@ const authUser = async (req, res) => {
 };
 const getUserProfile = async (req, res) => {
   try {
-    const user = await User.findById(req.user._id).populate('enrolledCourse assignedCourses');
+    const user = await User.findById(req.user._id);
     if (user) {
+      if (user.status === 'inactive') {
+        return res.status(401).json({ message: 'Tài khoản đã bị vô hiệu hóa' });
+      }
       const userObj = user.toObject();
       delete userObj.password;
       res.json(userObj);

@@ -44,7 +44,7 @@ const StudentProfile = () => {
   const handleSave = async (e) => {
     e.preventDefault();
     if (password && password !== confirmPwd) {
-      setMessage({ text: 'Passwords do not match.', type: 'error' });
+      setMessage({ text: 'Mật khẩu xác nhận không khớp.', type: 'error' });
       return;
     }
     setSaving(true);
@@ -54,21 +54,27 @@ const StudentProfile = () => {
       const res = await axios.put(`${import.meta.env.VITE_API_URL}/api/student/profile`, payload);
       const stored = JSON.parse(localStorage.getItem('user') || '{}');
       localStorage.setItem('user', JSON.stringify({ ...stored, email: res.data.email }));
-      setMessage({ text: 'Profile updated successfully!', type: 'success' });
+      setMessage({ text: 'Cập nhật hồ sơ thành công!', type: 'success' });
       setPassword(''); setConfirmPwd('');
       setTimeout(() => window.location.reload(), 1500);
     } catch (err) {
-      setMessage({ text: err.response?.data?.message || 'Failed to update profile', type: 'error' });
+      setMessage({ text: err.response?.data?.message || 'Cập nhật hồ sơ thất bại.', type: 'error' });
     } finally {
       setSaving(false);
     }
   };
 
-  if (loading) return <div>Loading profile...</div>;
-  if (!profile) return <div>Could not load profile.</div>;
+  if (loading) return <div>Đang tải hồ sơ học viên...</div>;
+  if (!profile) return <div>Không thể tải thông tin hồ sơ.</div>;
 
-  const formatDate = (d) => d ? new Date(d).toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' }) : '—';
+  const formatDate = (d) => d ? new Date(d).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' }) : '—';
   const initials = profile.name?.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
+
+  const getGenderText = (g) => {
+    if (g === 'Male') return 'Nam';
+    if (g === 'Female') return 'Nữ';
+    return g || 'Khác';
+  };
 
   return (
     <div>
@@ -92,35 +98,35 @@ const StudentProfile = () => {
             <h3 style={{ fontSize: '1.15rem', fontWeight: '600', marginBottom: '0.25rem' }}>{profile.name}</h3>
             <p style={{ color: 'var(--text-muted)', fontSize: '0.825rem', marginBottom: '1rem' }}>{profile.email}</p>
 
-            {/* Course badge */}
+            {/* Student role badge */}
             <div style={{
               display: 'inline-block', padding: '0.35rem 1rem',
               borderRadius: '999px', fontSize: '0.8rem', fontWeight: '600',
               background: 'rgba(99,102,241,0.15)', color: 'var(--accent-primary)',
             }}>
-              {profile.enrolledCourse?.name || 'No Course'}
+              Học Viên VLearn
             </div>
           </div>
 
           {/* Enrollment + IDs */}
           <div className="glass-panel" style={{ padding: '1.5rem' }}>
-            <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '1rem' }}>Student ID</p>
+            <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '1rem' }}>Mã học viên</p>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
               <Hash size={18} color="var(--accent-primary)" />
               <span style={{ fontWeight: '600', fontSize: '1.05rem', letterSpacing: '0.05em' }}>
-                {profile.enrollmentNumber || 'Not assigned'}
+                {profile.enrollmentNumber || 'Chưa cấp mã'}
               </span>
             </div>
           </div>
 
           {/* Status badges */}
           <div className="glass-panel" style={{ padding: '1.5rem' }}>
-            <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '1rem' }}>Status</p>
+            <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '1rem' }}>Thông tin cơ bản</p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>
               {[
-                { label: 'Category', value: profile.category || 'N/A' },
-                { label: 'Gender', value: profile.gender || 'N/A' },
-                { label: 'Handicapped', value: profile.isHandicapped ? 'Yes' : 'No' },
+                { label: 'Diện đối tượng', value: profile.category || 'Chung' },
+                { label: 'Giới tính', value: getGenderText(profile.gender) },
+                { label: 'Ưu tiên đặc biệt', value: profile.isHandicapped ? 'Có' : 'Không' },
               ].map((s, i) => (
                 <div key={i} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.875rem' }}>
                   <span style={{ color: 'var(--text-muted)' }}>{s.label}</span>
@@ -136,31 +142,31 @@ const StudentProfile = () => {
 
           {/* Personal Information */}
           <div className="glass-panel" style={{ padding: '2rem' }}>
-            <h3 style={{ marginBottom: '1.25rem', fontSize: '1rem', color: 'var(--text-secondary)' }}>Personal Information</h3>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0 2rem' }}>
-              <Field icon={<User size={15} />} label="Full Name" value={profile.name} />
-              <Field icon={<Mail size={15} />} label="Email" value={profile.email} />
-              <Field icon={<Phone size={15} />} label="Mobile" value={profile.mobileNumber} />
-              <Field icon={<Calendar size={15} />} label="Date of Birth" value={formatDate(profile.dateOfBirth)} />
-              <Field icon={<BookOpen size={15} />} label="Enrolled Course" value={profile.enrolledCourse?.name} />
-              <Field icon={<Shield size={15} />} label="Category" value={profile.category} />
-              <Field icon={<MapPin size={15} />} label="City" value={profile.address?.city} />
-              <Field icon={<MapPin size={15} />} label="State / Pincode" value={profile.address ? `${profile.address.state} – ${profile.address.pincode}` : '—'} />
+            <h3 style={{ marginBottom: '1.25rem', fontSize: '1rem', color: 'var(--text-secondary)' }}>Thông tin cá nhân</h3>
+            <div style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', display: 'grid', gap: '0 2rem' }}>
+              <Field icon={<User size={15} />} label="Họ và tên" value={profile.name} />
+              <Field icon={<Mail size={15} />} label="Địa chỉ Email" value={profile.email} />
+              <Field icon={<Phone size={15} />} label="Số điện thoại" value={profile.mobileNumber} />
+              <Field icon={<Calendar size={15} />} label="Ngày sinh" value={formatDate(profile.dateOfBirth)} />
+              <Field icon={<BookOpen size={15} />} label="Trung tâm" value="VLearn English Center" />
+              <Field icon={<Shield size={15} />} label="Trạng thái" value={profile.status === 'active' ? 'Đang theo học' : 'Hoàn thành'} />
+              <Field icon={<MapPin size={15} />} label="Tỉnh / Thành phố" value={profile.address?.city} />
+              <Field icon={<MapPin size={15} />} label="Quận / Huyện" value={profile.address ? `${profile.address.state || ''} ${profile.address.pincode ? `– ${profile.address.pincode}` : ''}` : '—'} />
             </div>
           </div>
 
           {/* Parent Info */}
           <div className="glass-panel" style={{ padding: '2rem' }}>
-            <h3 style={{ marginBottom: '1.25rem', fontSize: '1rem', color: 'var(--text-secondary)' }}>Parent / Guardian</h3>
+            <h3 style={{ marginBottom: '1.25rem', fontSize: '1rem', color: 'var(--text-secondary)' }}>Thông tin Phụ huynh / Người bảo hộ</h3>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0 2rem' }}>
-              <Field icon={<Heart size={15} />} label="Parent Name" value={profile.parentName} />
-              <Field icon={<Phone size={15} />} label="Parent Contact" value={profile.parentContact} />
+              <Field icon={<Heart size={15} />} label="Họ tên phụ huynh" value={profile.parentName} />
+              <Field icon={<Phone size={15} />} label="Số điện thoại phụ huynh" value={profile.parentContact} />
             </div>
           </div>
 
           {/* Account Settings */}
           <div className="glass-panel" style={{ padding: '2rem' }}>
-            <h3 style={{ marginBottom: '1.25rem', fontSize: '1rem', color: 'var(--text-secondary)' }}>Account Settings</h3>
+            <h3 style={{ marginBottom: '1.25rem', fontSize: '1rem', color: 'var(--text-secondary)' }}>Cài đặt tài khoản & Bảo mật</h3>
 
             {message.text && (
               <div style={{
@@ -173,22 +179,22 @@ const StudentProfile = () => {
 
             <form onSubmit={handleSave} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
               <div className="form-group" style={{ gridColumn: '1 / -1' }}>
-                <label className="form-label"><Mail size={14} style={{ marginRight: '0.4rem', verticalAlign: 'middle' }} />Email Address</label>
+                <label className="form-label"><Mail size={14} style={{ marginRight: '0.4rem', verticalAlign: 'middle' }} />Địa chỉ Email</label>
                 <input type="email" className="form-input" value={email} onChange={e => setEmail(e.target.value)} required />
               </div>
               <div className="form-group">
-                <label className="form-label"><Lock size={14} style={{ marginRight: '0.4rem', verticalAlign: 'middle' }} />New Password</label>
-                <input type="password" className="form-input" value={password} placeholder="Leave blank to keep" onChange={e => setPassword(e.target.value)} />
+                <label className="form-label"><Lock size={14} style={{ marginRight: '0.4rem', verticalAlign: 'middle' }} />Mật khẩu mới</label>
+                <input type="password" className="form-input" value={password} placeholder="Để trống nếu không đổi" onChange={e => setPassword(e.target.value)} />
               </div>
               <div className="form-group">
-                <label className="form-label"><Lock size={14} style={{ marginRight: '0.4rem', verticalAlign: 'middle' }} />Confirm Password</label>
-                <input type="password" className="form-input" value={confirmPwd} placeholder="Re-enter new password" onChange={e => setConfirmPwd(e.target.value)} />
+                <label className="form-label"><Lock size={14} style={{ marginRight: '0.4rem', verticalAlign: 'middle' }} />Xác nhận mật khẩu mới</label>
+                <input type="password" className="form-input" value={confirmPwd} placeholder="Nhập lại mật khẩu mới" onChange={e => setConfirmPwd(e.target.value)} />
               </div>
               <div style={{ gridColumn: '1 / -1' }}>
                 <button type="submit" className="btn btn-primary" disabled={saving}
                   style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                   <UserCheck size={17} />
-                  {saving ? 'Saving...' : 'Save Changes'}
+                  {saving ? 'Đang lưu...' : 'Lưu thay đổi'}
                 </button>
               </div>
             </form>

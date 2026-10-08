@@ -15,9 +15,9 @@ const AdminProfile = () => {
       const payload = { email };
       if (password) payload.password = password;
 
-      const res = await axios.put(`${import.meta.env.VITE_API_URLs}/api/admin/users/${user._id}`, payload);
+      const res = await axios.put(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/admin/users/${user._id}`, payload);
 
-      setMessage({ text: 'Profile updated successfully! Refreshing...', type: 'success' });
+      setMessage({ text: 'Cập nhật hồ sơ thành công! Đang tải lại...', type: 'success' });
 
       const updatedUser = { ...user, email: res.data.email };
       localStorage.setItem('user', JSON.stringify(updatedUser));
@@ -27,14 +27,14 @@ const AdminProfile = () => {
       }, 1500);
 
     } catch (err) {
-      setMessage({ text: err.response?.data?.message || 'Error updating profile', type: 'error' });
+      setMessage({ text: err.response?.data?.message || 'Có lỗi xảy ra khi cập nhật hồ sơ', type: 'error' });
     }
   };
 
   return (
     <div>
       <div className="page-header">
-        <h2>Update Profile</h2>
+        <h2>Cập Nhật Hồ Sơ Cá Nhân</h2>
       </div>
 
       <div className="glass-panel" style={{ maxWidth: '500px', width: '100%', padding: '2rem' }}>
@@ -45,7 +45,7 @@ const AdminProfile = () => {
         )}
         <form onSubmit={handleUpdate} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
           <div className="form-group">
-            <label className="form-label">Admin Email (Gmail)</label>
+            <label className="form-label">Email Quản Trị Viên</label>
             <input
               type="email"
               className="form-input"
@@ -55,7 +55,7 @@ const AdminProfile = () => {
             />
           </div>
           <div className="form-group">
-            <label className="form-label">New Password (leave blank to keep unchanged)</label>
+            <label className="form-label">Mật khẩu mới (để trống nếu không đổi)</label>
             <input
               type="password"
               className="form-input"
@@ -64,7 +64,7 @@ const AdminProfile = () => {
             />
           </div>
           <button type="submit" className="btn btn-primary" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
-            <UserCheck size={18} /> Update Profile
+            <UserCheck size={18} /> Lưu Thay Đổi
           </button>
         </form>
       </div>

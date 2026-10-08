@@ -3,8 +3,10 @@ import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'r
 import { AuthContext } from './context/AuthContext';
 import Login from './pages/Login';
 import AdminLayout from './layouts/AdminLayout';
-import ProfessorLayout from './layouts/ProfessorLayout';
+import TeacherLayout from './layouts/TeacherLayout';
+import ReceptionistLayout from './layouts/ReceptionistLayout';
 import StudentLayout from './layouts/StudentLayout';
+
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const { user } = useContext(AuthContext);
   if (!user) {
@@ -15,35 +17,43 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
   }
   return children;
 };
+
 const TitleUpdater = () => {
   const location = useLocation();
   useEffect(() => {
     const path = location.pathname;
-    let title = 'Nexus University of Technology';
-    if (path.includes('/dashboard')) title = 'Dashboard - Nexus';
-    else if (path.includes('/attendance')) title = 'Attendance - Nexus';
-    else if (path.includes('/login')) title = 'Login - Nexus';
-    else if (path.includes('/profile')) title = 'Profile - Nexus';
-    else if (path.includes('/studymaterial')) title = 'Study Material - Nexus';
-    else if (path.includes('/leaves')) title = 'Leaves - Nexus';
-    else if (path.includes('/notices')) title = 'Notice Board - Nexus';
-    else if (path.includes('/courses')) title = 'Courses - Nexus';
-    else if (path.includes('/subjects')) title = 'Subjects - Nexus';
-    else if (path.includes('/users')) title = 'Users - Nexus';
-    else if (path.includes('/students')) title = 'Students - Nexus';
+    let title = 'VLearn English Center';
+    if (path.includes('/dashboard')) title = 'Dashboard - VLearn';
+    else if (path.includes('/attendance')) title = 'Attendance - VLearn';
+    else if (path.includes('/login')) title = 'Login - VLearn';
+    else if (path.includes('/profile')) title = 'Profile - VLearn';
+    else if (path.includes('/studymaterial') || path.includes('/materials')) title = 'Study Material - VLearn';
+    else if (path.includes('/notices')) title = 'Notice Board - VLearn';
+    else if (path.includes('/students')) title = 'Students - VLearn';
+    else if (path.includes('/teachers')) title = 'Teachers - VLearn';
+    else if (path.includes('/classes')) title = 'Classes - VLearn';
+    else if (path.includes('/schedule')) title = 'Schedule - VLearn';
+    else if (path.includes('/results')) title = 'Results - VLearn';
+    else if (path.includes('/tuition')) title = 'Tuition - VLearn';
+    else if (path.includes('/payments')) title = 'Payments - VLearn';
+    else if (path.includes('/accounts')) title = 'Accounts - VLearn';
+    else if (path.includes('/roles')) title = 'Permission Matrix - VLearn';
     document.title = title;
   }, [location]);
   return null;
 };
+
 const App = () => {
   const { user } = useContext(AuthContext);
   const getDashboardHome = () => {
     if (!user) return <Navigate to="/login" replace />;
     if (user.role === 'Admin') return <Navigate to="/admin" replace />;
-    if (user.role === 'Professor') return <Navigate to="/professor" replace />;
+    if (user.role === 'Receptionist') return <Navigate to="/receptionist" replace />;
+    if (user.role === 'Teacher') return <Navigate to="/teacher" replace />;
     if (user.role === 'Student') return <Navigate to="/student" replace />;
     return <Navigate to="/login" replace />;
   };
+
   return (
     <Router>
       <TitleUpdater />
@@ -55,9 +65,14 @@ const App = () => {
             <AdminLayout />
           </ProtectedRoute>
         } />
-        <Route path="/professor/*" element={
-          <ProtectedRoute allowedRoles={['Professor']}>
-            <ProfessorLayout />
+        <Route path="/receptionist/*" element={
+          <ProtectedRoute allowedRoles={['Receptionist']}>
+            <ReceptionistLayout />
+          </ProtectedRoute>
+        } />
+        <Route path="/teacher/*" element={
+          <ProtectedRoute allowedRoles={['Teacher']}>
+            <TeacherLayout />
           </ProtectedRoute>
         } />
         <Route path="/student/*" element={
@@ -69,4 +84,5 @@ const App = () => {
     </Router>
   );
 };
+
 export default App;

@@ -1,293 +1,123 @@
-# 🎓 University Management System
+# 📘 VLearn English Center - Hệ Thống Quản Lý Trung Tâm Anh Ngữ
 
-<div align="center">
-
-### A Role-Based MERN Stack Web Application for Streamlining University Operations
-
-Manage Students • Faculty • Courses • Attendance • Study Materials • Academic Records
-
-![MongoDB](https://img.shields.io/badge/MongoDB-6.x-green?style=for-the-badge\&logo=mongodb)
-![Express](https://img.shields.io/badge/Express.js-4.x-black?style=for-the-badge\&logo=express)
-![React](https://img.shields.io/badge/React-18.x-blue?style=for-the-badge\&logo=react)
-![NodeJS](https://img.shields.io/badge/Node.js-20.x-green?style=for-the-badge\&logo=node.js)
-![Vite](https://img.shields.io/badge/Vite-6.x-purple?style=for-the-badge\&logo=vite)
-![TailwindCSS](https://img.shields.io/badge/TailwindCSS-3.x-06B6D4?style=for-the-badge\&logo=tailwindcss)
-![JWT](https://img.shields.io/badge/JWT-Authentication-orange?style=for-the-badge)
-
-</div>
-
----
-
-## 🌐 Live Demo
-
-🔗 **[Visit Live Application](https://nexusuniversity.vercel.app)**
-
-### Demo Credentials
-
-📧 Email: `yash@gmail.com`
-🔑 Password: `yash123`
-
----
-
-## 📖 Overview
-
-The **University Management System** is a role-based web application designed to streamline academic and administrative operations within a university.
-
-The platform provides dedicated dashboards for:
-
-* 👨‍💼 Admin
-* 👨‍🏫 Professor
-* 👨‍🎓 Student
-
-The system simplifies user management, course management, attendance tracking, study material sharing, result management, and notice handling through a centralized platform.
-
----
-
-## ✨ Features
-
-### 👨‍💼 Admin Module
-
-* Secure Admin Authentication
-* Manage Students
-* Manage Professors
-* Manage Courses and Subjects
-* Assign Professors to Courses
-* Manage Notices
-* Approve or Reject Leave Requests
-* Monitor Academic Activities
-
-### 👨‍🏫 Professor Module
-
-* Secure Authentication
-* View Assigned Courses
-* Upload Notes and Study Materials
-* Manage Student Attendance
-* Enter Marks and Results
-* Apply for Leave
-* View Notices
-
-### 👨‍🎓 Student Module
-
-* Registration and Login
-* View Enrolled Courses
-* Check Attendance Records
-* View Marks and Results
-* Download Study Materials
-* Apply for Leave
-* View Notices
-
----
-
-## 🏗️ System Architecture
-
-```text
-Frontend (React + Vite)
-          │
-          ▼
-Backend (Node.js + Express.js)
-          │
-          ▼
-Database (MongoDB Atlas)
-```
+Hệ thống quản lý trung tâm Anh ngữ toàn diện (VLearn English Center Student Management System) xây dựng trên nền tảng MERN Stack hiện đại, đáp ứng đầy đủ nghiệp vụ quản lý đào tạo, giáo viên, học viên, lịch học, điểm danh, kết quả học tập và tài chính học phí.
 
 ---
 
 ## 🛠️ Tech Stack
 
-### Frontend
-
-* React.js
-* Vite
-* Tailwind CSS
-* Axios
-
-### Backend
-
-* Node.js
-* Express.js
-
-### Database
-
-* MongoDB Atlas
-* Mongoose ODM
-
-### Authentication
-
-* JWT Authentication
-* Role-Based Authorization
-
-### Deployment
-
-* Vercel (Frontend)
-* Render (Backend)
-
-### Version Control
-
-* Git
-* GitHub
+- **Frontend**: React 19, Vite, React Router 7, Lucide Icons, Recharts, Vanilla CSS Design System
+- **Backend**: Node.js, Express 5, Mongoose 9, JWT (JSON Web Tokens), Multer, Bcrypt
+- **Database**: MongoDB (Atlas / Local Replica Set)
 
 ---
 
-## 📂 Project Structure
+## 👥 Roles & Permissions
 
-```text
-University-Management-System/
-│
-├── frontend/
-│   ├── public/
-│   ├── src/
-│   ├── package.json
-│   ├── vite.config.js
-│   └── vercel.json
-│
-├── backend/
-│   ├── controllers/
-│   ├── middleware/
-│   ├── models/
-│   ├── routes/
-│   ├── uploads/
-│   ├── scripts/
-│   ├── seed.js
-│   └── server.js
-│
-├── .gitignore
-└── README.md
-```
+Hệ thống phân quyền nghiêm ngặt theo 4 vai trò chính:
+
+| Vai trò | Phân hệ truy cập chính |
+| :--- | :--- |
+| **Admin (Quản trị viên)** | Toàn quyền quản trị hệ thống, quản lý tài khoản nhân viên, giáo viên, học viên, cấu hình lớp học, lịch học, phê duyệt tài chính, hủy phiếu thu, phân quyền và thống kê toàn diện. |
+| **Receptionist (Lễ tân / Tuyển sinh)** | Tiếp nhận học viên mới, ghi danh vào lớp, lập hóa đơn học phí, ghi nhận thanh toán/thu tiền học phí, theo dõi công nợ, quản lý lịch học và thông báo trung tâm. |
+| **Teacher (Giáo viên)** | Xem danh sách lớp phụ trách, theo dõi thời khóa biểu dạy học, thực hiện điểm danh học viên từng buổi học, nhập bảng điểm đánh giá 4 kỹ năng, tải lên tài liệu học tập. |
+| **Student (Học viên)** | Theo dõi thông tin lớp học đã ghi danh, lịch học cá nhân, lịch sử điểm danh, bảng điểm kết quả học tập, hóa đơn học phí, trạng thái đóng tiền và tải tài liệu học tập. |
 
 ---
 
-## 📚 Core Modules
+## ✨ Core Features
 
-* Authentication & Authorization
-* Student Management
-* Professor Management
-* Course Management
-* Attendance Management
-* Result Management
-* Leave Management
-* Notice Management
-* Study Material Upload
-* Dashboard Analytics
+1. **Quản lý học viên (Students)**: Hồ sơ chi tiết, mã học viên tự động, ngày sinh, liên hệ phụ huynh, trạng thái học tập.
+2. **Quản lý giáo viên (Teachers)**: Hồ sơ giảng dạy, chuyên môn, chứng chỉ quốc tế (IELTS/TOEFL/CELTA), lớp phụ trách.
+3. **Quản lý lớp học (Classes)**: Phân loại theo kỹ năng (IELTS, TOEIC, General, Communication, v.v.), sức chứa, sĩ số thực tế, học phí.
+4. **Ghi danh & Chuyển lớp (Enrollment)**: Ghi danh học viên, tự động khởi tạo hóa đơn học phí, chuyển đổi lớp học an toàn.
+5. **Thời khóa biểu & Buổi học (Schedule & ClassSessions)**: Xếp lịch theo phòng/thứ/giờ, tự động phát hiện xung đột phòng học, sinh danh sách buổi học có thứ tự.
+6. **Điểm danh (Attendance)**: Điểm danh từng học viên theo từng buổi học (Có mặt, Đi trễ, Nghĩ phép, Vắng mặt), thống kê tỷ lệ chuyên cần.
+7. **Kết quả học tập (Learning Results)**: Đánh giá chi tiết 4 kỹ năng (Nghe, Nói, Đọc, Viết) và điểm tổng kết theo bài kiểm tra (Quiz, Midterm, Final, Mock test).
+8. **Học phí (Tuition)**: Hóa đơn học phí tự động liên kết ghi danh, quản lý hạn đóng, tình trạng thanh toán (Chưa đóng, Đóng một phần, Đã hoàn tất).
+9. **Phiếu thu & Thanh toán (Payments)**: Ghi nhận nhiều lần đóng, phương thức (Tiền mặt, Chuyển khoản, Thẻ), hỗ trợ chức năng hủy phiếu thu (Void) có ghi log lý do dành cho Admin.
+10. **Bảng điều khiển (Dashboards)**: Dashboard trực quan, tối ưu hóa theo đặc thù công việc của từng vai trò với biểu đồ phân tích.
+11. **Bảng thông báo (Notices)**: Thông báo phân luồng đối tượng (Toàn trung tâm, Giáo viên, Học viên).
+12. **Tài liệu học tập (Study Materials)**: Lưu trữ tài liệu theo từng lớp học, kiểm soát quyền tải về theo phân quyền lớp học.
 
 ---
 
-## ⚙️ Installation
+## ⚙️ Installation & Setup
 
-### 1️⃣ Clone the Repository
-
-```bash
-git clone https://github.com/baraiyash/University-Management-System.git
-cd University-Management-System
-```
-
-### 2️⃣ Install Backend Dependencies
+### 1. Cài đặt Backend
 
 ```bash
 cd backend
 npm install
 ```
 
-### 3️⃣ Install Frontend Dependencies
-
-```bash
-cd ../frontend
-npm install
-```
-
-### 4️⃣ Configure Environment Variables
-
-Create a `.env` file inside the `backend/` directory.
+Tạo tệp `.env` trong thư mục `backend/`:
 
 ```env
 PORT=5000
-MONGO_URI=your_mongodb_connection_string
-JWT_SECRET=your_secret_key
+MONGO_URI=mongodb://127.0.0.1:27017/university-management
+JWT_SECRET=your_jwt_secret_key_here
 NODE_ENV=development
 ```
 
-### 5️⃣ Seed Demo Data (Optional)
+Khởi chạy backend:
+
+```bash
+npm run dev
+# hoặc
+npm start
+```
+
+### 2. Cài đặt Frontend
+
+```bash
+cd frontend
+npm install
+```
+
+Tạo tệp `.env` trong thư mục `frontend/`:
+
+```env
+VITE_API_URL=http://localhost:5000
+```
+
+Khởi chạy frontend:
+
+```bash
+npm run dev
+```
+
+Truy cập ứng dụng tại địa chỉ: `http://localhost:5173` (hoặc cổng hiển thị trên terminal).
+
+---
+
+## 🧪 Demo Seed Data
+
+Khởi tạo dữ liệu mẫu VLearn chuẩn hóa (Bao gồm đầy đủ tài khoản, lớp học, buổi học, điểm danh, hóa đơn và phiếu thu đồng bộ 100%):
 
 ```bash
 cd backend
-node seed.js
+npm run seed:vlearn
 ```
 
-### 6️⃣ Run Backend Server
+### Tài khoản trải nghiệm mặc định (Local Demo Only):
+
+| Vai trò | Email đăng nhập | Mật khẩu mặc định |
+| :--- | :--- | :--- |
+| **Admin** | `admin@vlearn.edu.vn` | `VLearnAdmin123!` |
+| **Receptionist** | `letan@vlearn.edu.vn` | `VLearnReception123!` |
+| **Teacher** | `teacher@vlearn.edu.vn` | `VLearnTeacher123!` |
+| **Student** | `student@vlearn.edu.vn` | `VLearnStudent123!` |
+
+*(Lưu ý: Thông tin đăng nhập trên chỉ dành riêng cho môi trường chạy thử nghiệm local).*
+
+---
+
+## 📋 Kiểm thử tự động (Automated Verification)
+
+Hệ thống được trang bị bộ kiểm thử tích hợp End-to-End (E2E) bảo đảm toàn vẹn chức năng và tính bảo mật:
 
 ```bash
-npm run dev
+cd backend
+node scripts/run_phase13_e2e.js
 ```
-
-### 7️⃣ Run Frontend
-
-```bash
-cd ../frontend
-npm run dev
-```
-
-### 8️⃣ Open in Browser
-
-```text
-http://localhost:5173
-```
-
----
-
-## 🔐 User Roles
-
-| Role      | Access                                                                     |
-| --------- | -------------------------------------------------------------------------- |
-| Admin     | Manage users (Professors, Students), courses, subjects, notices and leaves |
-| Professor | Manage attendance, materials, leaves, marks and view notices               |
-| Student   | View attendance, materials, profile, notices and results                   |
-
----
-
-## 🚀 Future Enhancements
-
-* Fee Management System
-* Timetable Scheduling
-* Email Notifications
-* Video Lecture Integration
-* Online Examination System
-* AI-Based Student Performance Analysis
-
----
-
-## 🧠 Project Highlights
-
-Through the development of this project, I gained hands-on experience in:
-
-* Full-Stack MERN Stack Development
-* RESTful API Design and Development
-* JWT Authentication & Authorization
-* Protected Routes and Middleware
-* Role-Based Access Control (RBAC)
-* MongoDB Database Design and Schema Modeling
-* State Management in React
-* Frontend Development using React and Tailwind CSS
-* File Upload Handling and Validation
-* API Integration using Axios
-* Git and GitHub Version Control
-* Deployment using Vercel and Render
-* Debugging and Performance Optimization
-
----
-
-## 👨‍💻 Author
-
-**Yash Barai**
-
-* GitHub: https://github.com/baraiyash
-
----
-
-## ⭐ Support
-
-If you found this project useful, consider giving it a ⭐ on GitHub.
-
----
-
-## 📜 License
-
-This project is developed for educational and learning purposes.

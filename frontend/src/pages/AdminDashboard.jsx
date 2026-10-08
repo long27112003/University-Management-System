@@ -1,203 +1,446 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Users, UserCheck, BookOpen } from 'lucide-react';
-import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts';
+import {
+  Users, UserCheck, BookOpen, Calendar, DollarSign,
+  CheckCircle, AlertCircle, Clock, ChevronRight, GraduationCap
+} from 'lucide-react';
+import {
+  ResponsiveContainer, BarChart, Bar, XAxis, YAxis,
+  CartesianGrid, Tooltip, PieChart, Pie, Cell, Legend
+} from 'recharts';
+import { Link } from 'react-router-dom';
+import { PageHeader, StatCard, StatusBadge, LoadingSkeleton, ErrorState } from '../components/common';
 
-const COLORS = [
-  '#6366f1', // Indigo
-  '#8b5cf6', // Violet
-  '#ec4899', // Pink
-  '#f43f5e', // Rose
-  '#f97316', // Orange
-  '#eab308', // Yellow
-  '#84cc16', // Lime
-  '#10b981', // Emerald
-  '#06b6d4', // Cyan
-  '#3b82f6', // Blue
-];
+const ATTENDANCE_COLORS = {
+  Present: '#10B981',
+  Absent: '#EF4444',
+  Late: '#F59E0B',
+  Excused: '#3B82F6'
+};
 
-const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent }) => {
-  const RADIAN = Math.PI / 180;
-  const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
-  const x = cx + radius * Math.cos(-midAngle * RADIAN);
-  const y = cy + radius * Math.sin(-midAngle * RADIAN);
+const ATTENDANCE_LABELS = {
+  Present: 'Có mặt',
+  Absent: 'Vắng mặt',
+  Late: 'Đi muộn',
+  Excused: 'Có phép'
+};
 
-  // Don't show label if slice is too small
-  if (percent < 0.05) return null;
-
-  return (
-    <text x={x} y={y} fill="white" textAnchor="middle" dominantBaseline="central" fontSize={12} fontWeight="600" style={{ textShadow: '0px 1px 2px rgba(0,0,0,0.5)' }}>
-      {`${(percent * 100).toFixed(0)}%`}
-    </text>
-  );
+const formatCurrency = (amount) => {
+  if (typeof amount !== 'number') return '0 ₫';
+  return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
 };
 
 const AdminDashboard = () => {
-  const [stats, setStats] = useState({
-    totalStudents: 0, totalProfessors: 0, totalCourses: 0,
-    studentDistribution: [], subjectsPerCourse: [], leaveStatus: []
-  });
+  const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  const fetchDashboard = async () => {
+    try {
+      setLoading(true);
+      setError('');
+      const token = localStorage.getItem('token');
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/admin/dashboard`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {}
+      });
+      setData(res.data);
+    } catch (err) {
+      console.error('Failed to load admin dashboard:', err);
+      setError(err.response?.data?.message || 'Không thể tải dữ liệu bảng điều khiển');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/admin/dashboard`);
-        setStats(res.data);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchStats();
+    fetchDashboard();
   }, []);
-  if (loading) return <div>Loading dashboard...</div>;
-  const statCards = [
-    { title: 'Total Students', value: stats.totalStudents, icon: <Users size={24} color="var(--accent-primary)" />, bg: 'rgba(59, 130, 246, 0.1)' },
-    { title: 'Total Professors', value: stats.totalProfessors, icon: <UserCheck size={24} color="var(--success)" />, bg: 'rgba(16, 185, 129, 0.1)' },
-    { title: 'Total Courses', value: stats.totalCourses, icon: <BookOpen size={24} color="var(--warning)" />, bg: 'rgba(245, 158, 11, 0.1)' },
-  ];
+
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+        <LoadingSkeleton type="card" count={4} />
+        <LoadingSkeleton type="table" count={6} />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <ErrorState
+        title="Lỗi tải Bảng Điều Khiển"
+        message={error}
+        onRetry={fetchDashboard}
+      />
+    );
+  }
+
+  if (!data) return null;
+
+  // Attendance pie data
+  const attendancePieData = Object.entries(data.attendanceOverview || {})
+    .map(([status, count]) => ({
+      name: ATTENDANCE_LABELS[status] || status,
+      statusKey: status,
+      value: count
+    }))
+    .filter(item => item.value > 0);
+
+  const collectionRate = data.totalTuition > 0
+    ? Math.round((data.paidTuition / data.totalTuition) * 100)
+    : 0;
+
   return (
-    <div>
-      <h2 style={{ marginBottom: '2rem' }}>System Overview</h2>
-      <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1.5rem', marginBottom: '2rem' }}>
-        {statCards.map((card, index) => (
-          <div key={index} className="glass-panel" style={{ padding: '1.5rem', display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
-            <div style={{ background: card.bg, padding: '1rem', borderRadius: '50%' }}>
-              {card.icon}
-            </div>
-            <div>
-              <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem', marginBottom: '0.25rem' }}>{card.title}</p>
-              <h3 style={{ fontSize: '1.5rem', margin: 0 }}>{card.value}</h3>
-            </div>
-          </div>
-        ))}
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.75rem' }}>
+      {/* Page Header */}
+      <PageHeader
+        title="Bảng Điều Khiển Quản Trị"
+        subtitle="Tổng quan hoạt động đào tạo, tuyển sinh và tài chính trung tâm VLearn"
+      />
+
+      {/* Row 1: Academic KPIs (4 cards) */}
+      <div>
+        <h2 style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--color-text-main)', marginBottom: '0.75rem' }}>
+          Chỉ Số Đào Tạo & Học Vụ
+        </h2>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem' }}>
+          <StatCard
+            title="Tổng Học Viên"
+            value={data.totalStudents}
+            icon={<Users size={20} />}
+            iconBg="#EFF6FF"
+            iconColor="#2563EB"
+            subtitle="Tổng hồ sơ trong hệ thống"
+          />
+          <StatCard
+            title="Học Viên Đang Học"
+            value={data.activeStudents}
+            icon={<UserCheck size={20} />}
+            iconBg="#ECFDF5"
+            iconColor="#059669"
+            subtitle={`${Math.round((data.activeStudents / (data.totalStudents || 1)) * 100)}% tỷ lệ đang học`}
+          />
+          <StatCard
+            title="Đội Ngũ Giáo Viên"
+            value={data.totalTeachers}
+            icon={<GraduationCap size={20} />}
+            iconBg="#F5F3FF"
+            iconColor="#7C3AED"
+            subtitle="Giáo viên đang giảng dạy"
+          />
+          <StatCard
+            title="Lớp Học Đang Mở"
+            value={data.activeClasses}
+            icon={<BookOpen size={20} />}
+            iconBg="#FFFBEB"
+            iconColor="#D97706"
+            subtitle="Lớp học active trong kỳ"
+          />
+        </div>
       </div>
 
-      <h2 style={{ marginBottom: '1.5rem', marginTop: '1rem' }}>Analytics Overview</h2>
-
-      <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.5rem', marginBottom: '2rem' }}>
-
-        {/* Student Distribution */}
-        <div className="glass-panel" style={{ padding: '2rem 1rem', height: '400px', display: 'flex', flexDirection: 'column' }}>
-          <h3 style={{ marginBottom: '1rem', textAlign: 'center', fontSize: '1.1rem', color: 'var(--text-secondary)' }}>Student Distribution by Course</h3>
-          {stats.studentDistribution && stats.studentDistribution.length > 0 ? (
-            <div style={{ flex: 1, minHeight: 0 }}>
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={stats.studentDistribution}
-                    cx="50%"
-                    cy="50%"
-                    labelLine={false}
-                    label={renderCustomizedLabel}
-                    outerRadius={110}
-                    innerRadius={70}
-                    dataKey="value"
-                    paddingAngle={3}
-                  >
-                    {stats.studentDistribution.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} stroke="transparent" />
-                    ))}
-                  </Pie>
-                  <Tooltip
-                    formatter={(value) => [value, 'Students']}
-                    contentStyle={{ background: 'var(--bg-card)', backdropFilter: 'blur(10px)', border: 'none', borderRadius: 'var(--radius-md)', boxShadow: 'var(--shadow-md)' }}
-                    itemStyle={{ color: 'var(--text-primary)', fontWeight: 500 }}
-                  />
-                  <Legend verticalAlign="bottom" height={36} iconType="circle" wrapperStyle={{ fontSize: '12px' }} />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-          ) : (
-            <div style={{ display: 'flex', flex: 1, alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)' }}>
-              No student distribution data available.
-            </div>
-          )}
+      {/* Row 2: Financial KPIs (3 cards) */}
+      <div>
+        <h2 style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--color-text-main)', marginBottom: '0.75rem' }}>
+          Chỉ Số Học Phí & Tài Chính
+        </h2>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1rem' }}>
+          <StatCard
+            title="Tổng Học Phí Phải Thu"
+            value={formatCurrency(data.totalTuition)}
+            icon={<DollarSign size={20} />}
+            iconBg="#EFF6FF"
+            iconColor="#2563EB"
+            subtitle="Tổng giá trị hóa đơn đã phát hành"
+          />
+          <StatCard
+            title="Đã Thu Thực Tế"
+            value={formatCurrency(data.paidTuition)}
+            icon={<CheckCircle size={20} />}
+            iconBg="#ECFDF5"
+            iconColor="#059669"
+            subtitle={`Đạt ${collectionRate}% trên tổng học phí`}
+            trend={`${collectionRate}%`}
+            trendPositive={true}
+          />
+          <StatCard
+            title="Công Nợ Còn Phải Thu"
+            value={formatCurrency(data.outstandingTuition)}
+            icon={<AlertCircle size={20} />}
+            iconBg="#FEF2F2"
+            iconColor="#EF4444"
+            subtitle="Khoản chưa hoàn tất hoặc quá hạn"
+            trend={data.outstandingTuition > 0 ? "Cần đôn đốc" : "Hoàn tất"}
+            trendPositive={data.outstandingTuition === 0}
+          />
         </div>
+      </div>
 
-        {/* Subjects per Course */}
-        <div className="glass-panel" style={{ padding: '2rem 1rem', height: '400px', display: 'flex', flexDirection: 'column' }}>
-          <h3 style={{ marginBottom: '1rem', textAlign: 'center', fontSize: '1.1rem', color: 'var(--text-secondary)' }}>Subjects Workload per Course</h3>
-          {stats.subjectsPerCourse && stats.subjectsPerCourse.length > 0 ? (
-            <div style={{ flex: 1, minHeight: 0 }}>
+      {/* Row 3: Charts Section */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: '1.25rem' }}>
+        {/* Monthly Tuition Collection Chart */}
+        <div style={{
+          background: '#FFFFFF',
+          borderRadius: 'var(--radius-lg, 8px)',
+          border: '1px solid var(--color-border-subtle, #E2E8F0)',
+          padding: '1.25rem',
+          boxShadow: 'var(--shadow-card)'
+        }}>
+          <h3 style={{ fontSize: '0.9375rem', fontWeight: 600, color: 'var(--color-text-main)', marginBottom: '1rem' }}>
+            Học Phí Thực Thu (6 Tháng Gần Nhất)
+          </h3>
+          {data.monthlyTuitionSummary && data.monthlyTuitionSummary.length > 0 ? (
+            <div style={{ height: '240px', width: '100%' }}>
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={stats.subjectsPerCourse} margin={{ top: 20, right: 10, left: -20, bottom: 40 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" vertical={false} />
-                  <XAxis
-                    dataKey="name"
-                    tick={{ fill: 'var(--text-muted)', fontSize: 11 }}
-                    axisLine={false}
-                    tickLine={false}
-                    interval={0}
-                    angle={-45}
-                    textAnchor="end"
-                  />
-                  <YAxis allowDecimals={false} tick={{ fill: 'var(--text-muted)', fontSize: 11 }} axisLine={false} tickLine={false} />
+                <BarChart data={data.monthlyTuitionSummary} margin={{ top: 10, right: 10, left: 10, bottom: 20 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" />
+                  <XAxis dataKey="month" stroke="#64748B" fontSize={11} />
+                  <YAxis stroke="#64748B" fontSize={11} tickFormatter={(val) => `${(val / 1000000).toFixed(0)}M`} />
                   <Tooltip
-                    cursor={{ fill: 'rgba(59, 130, 246, 0.05)' }}
-                    formatter={(value) => [value, 'Subjects']}
-                    contentStyle={{ background: 'var(--bg-card)', backdropFilter: 'blur(10px)', border: 'none', borderRadius: 'var(--radius-md)', boxShadow: 'var(--shadow-md)' }}
-                    itemStyle={{ color: 'var(--text-primary)', fontWeight: 500 }}
+                    formatter={(val) => [formatCurrency(val), 'Học phí thực thu']}
+                    labelFormatter={(label) => `Tháng: ${label}`}
+                    contentStyle={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '6px' }}
                   />
-                  <Bar dataKey="count" radius={[6, 6, 0, 0]} maxBarSize={40}>
-                    {stats.subjectsPerCourse.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                  </Bar>
+                  <Bar dataKey="collectedAmount" fill="#2563EB" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
           ) : (
-            <div style={{ display: 'flex', flex: 1, alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)' }}>
-              No subjects data available.
+            <div style={{ height: '200px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748B', fontSize: '0.875rem' }}>
+              Chưa có dữ liệu thu học phí
             </div>
           )}
         </div>
 
-        {/* Leave Requests Status */}
-        <div className="glass-panel" style={{ padding: '2rem 1rem', height: '400px', display: 'flex', flexDirection: 'column' }}>
-          <h3 style={{ marginBottom: '1rem', textAlign: 'center', fontSize: '1.1rem', color: 'var(--text-secondary)' }}>Leave Requests Status</h3>
-          {stats.leaveStatus && stats.leaveStatus.length > 0 ? (
-            <div style={{ flex: 1, minHeight: 0 }}>
+        {/* Student Growth Chart */}
+        <div style={{
+          background: '#FFFFFF',
+          borderRadius: 'var(--radius-lg, 8px)',
+          border: '1px solid var(--color-border-subtle, #E2E8F0)',
+          padding: '1.25rem',
+          boxShadow: 'var(--shadow-card)'
+        }}>
+          <h3 style={{ fontSize: '0.9375rem', fontWeight: 600, color: 'var(--color-text-main)', marginBottom: '1rem' }}>
+            Học Viên Mới (6 Tháng Gần Nhất)
+          </h3>
+          {data.monthlyStudentGrowth && data.monthlyStudentGrowth.length > 0 ? (
+            <div style={{ height: '240px', width: '100%' }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={data.monthlyStudentGrowth} margin={{ top: 10, right: 10, left: 10, bottom: 20 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" />
+                  <XAxis dataKey="month" stroke="#64748B" fontSize={11} />
+                  <YAxis stroke="#64748B" fontSize={11} allowDecimals={false} />
+                  <Tooltip
+                    formatter={(val) => [`${val} học viên`, 'Học viên mới']}
+                    labelFormatter={(label) => `Tháng: ${label}`}
+                    contentStyle={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '6px' }}
+                  />
+                  <Bar dataKey="count" fill="#10B981" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          ) : (
+            <div style={{ height: '200px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748B', fontSize: '0.875rem' }}>
+              Chưa có dữ liệu học viên mới
+            </div>
+          )}
+        </div>
+
+        {/* Attendance Overview (Current Month) */}
+        <div style={{
+          background: '#FFFFFF',
+          borderRadius: 'var(--radius-lg, 8px)',
+          border: '1px solid var(--color-border-subtle, #E2E8F0)',
+          padding: '1.25rem',
+          boxShadow: 'var(--shadow-card)'
+        }}>
+          <h3 style={{ fontSize: '0.9375rem', fontWeight: 600, color: 'var(--color-text-main)', marginBottom: '1rem' }}>
+            Tỷ Lệ Điểm Danh (Tháng Hiện Tại)
+          </h3>
+          {attendancePieData.length > 0 ? (
+            <div style={{ height: '240px', width: '100%' }}>
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
-                    data={stats.leaveStatus}
+                    data={attendancePieData}
                     cx="50%"
                     cy="50%"
-                    outerRadius={110}
-                    innerRadius={70}
-                    labelLine={false}
-                    label={renderCustomizedLabel}
-                    dataKey="value"
+                    innerRadius={50}
+                    outerRadius={80}
                     paddingAngle={3}
+                    dataKey="value"
                   >
-                    {stats.leaveStatus.map((entry, index) => {
-                      let color = '#eab308'; // Pending yellow
-                      if (entry.name === 'Approved') color = '#10b981'; // Success green
-                      if (entry.name === 'Rejected') color = '#f43f5e'; // Danger red
-                      return <Cell key={`cell-${index}`} fill={color} stroke="transparent" />;
-                    })}
+                    {attendancePieData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={ATTENDANCE_COLORS[entry.statusKey] || '#64748B'} />
+                    ))}
                   </Pie>
                   <Tooltip
-                    formatter={(value) => [value, 'Requests']}
-                    contentStyle={{ background: 'var(--bg-card)', backdropFilter: 'blur(10px)', border: 'none', borderRadius: 'var(--radius-md)', boxShadow: 'var(--shadow-md)' }}
-                    itemStyle={{ color: 'var(--text-primary)', fontWeight: 500 }}
+                    formatter={(val, name) => [`${val} lượt`, name]}
+                    contentStyle={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '6px' }}
                   />
-                  <Legend verticalAlign="bottom" height={36} iconType="circle" wrapperStyle={{ fontSize: '12px' }} />
+                  <Legend />
                 </PieChart>
               </ResponsiveContainer>
             </div>
           ) : (
-            <div style={{ display: 'flex', flex: 1, alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)' }}>
-              No leave requests data available.
+            <div style={{ height: '200px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748B', fontSize: '0.875rem' }}>
+              Chưa có dữ liệu điểm danh tháng này
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Row 4: Today's Classes List */}
+      <div style={{
+        background: '#FFFFFF',
+        borderRadius: 'var(--radius-lg, 8px)',
+        border: '1px solid var(--color-border-subtle, #E2E8F0)',
+        padding: '1.25rem',
+        boxShadow: 'var(--shadow-card)'
+      }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+          <div>
+            <h3 style={{ fontSize: '1rem', fontWeight: 600, margin: 0, color: 'var(--color-text-main)' }}>
+              Lớp Học Hôm Nay
+            </h3>
+            <p style={{ color: 'var(--color-text-muted)', fontSize: '0.8125rem', margin: '0.2rem 0 0 0' }}>
+              Có {data.todayClasses} ca học được lên lịch trong ngày
+            </p>
+          </div>
+          <Link
+            to="/admin/classes"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.25rem',
+              fontSize: '0.8125rem',
+              fontWeight: 500,
+              color: 'var(--color-primary-600)'
+            }}
+          >
+            Xem tất cả lớp <ChevronRight size={14} />
+          </Link>
+        </div>
+
+        {data.todayClassList && data.todayClassList.length > 0 ? (
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.875rem' }}>
+              <thead>
+                <tr style={{ background: '#F8FAFC', borderBottom: '1px solid #E2E8F0', color: '#64748B', fontSize: '0.75rem', textTransform: 'uppercase' }}>
+                  <th style={{ padding: '10px 12px', fontWeight: 600 }}>Mã Lớp</th>
+                  <th style={{ padding: '10px 12px', fontWeight: 600 }}>Tên Lớp</th>
+                  <th style={{ padding: '10px 12px', fontWeight: 600 }}>Kỹ Năng</th>
+                  <th style={{ padding: '10px 12px', fontWeight: 600 }}>Giáo Viên</th>
+                  <th style={{ padding: '10px 12px', fontWeight: 600 }}>Thời Gian</th>
+                  <th style={{ padding: '10px 12px', fontWeight: 600 }}>Phòng</th>
+                  <th style={{ padding: '10px 12px', fontWeight: 600 }}>Trạng Thái</th>
+                </tr>
+              </thead>
+              <tbody>
+                {data.todayClassList.map((session, idx) => (
+                  <tr key={idx} style={{ borderBottom: '1px solid #E2E8F0' }}>
+                    <td style={{ padding: '10px 12px', fontWeight: 600, color: 'var(--color-primary-600)' }}>{session.classCode}</td>
+                    <td style={{ padding: '10px 12px' }}>{session.className}</td>
+                    <td style={{ padding: '10px 12px', textTransform: 'capitalize' }}>{session.skill}</td>
+                    <td style={{ padding: '10px 12px' }}>{session.teacher}</td>
+                    <td style={{ padding: '10px 12px' }}>{session.startTime} - {session.endTime}</td>
+                    <td style={{ padding: '10px 12px' }}>{session.room}</td>
+                    <td style={{ padding: '10px 12px' }}>
+                      <StatusBadge status={session.status === 'completed' ? 'completed' : 'scheduled'} />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div style={{ padding: '2rem', textAlign: 'center', color: '#64748B', fontSize: '0.875rem' }}>
+            Hôm nay không có buổi học nào được lên lịch
+          </div>
+        )}
+      </div>
+
+      {/* Row 5: Recent Students & Recent Payments */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.25rem' }}>
+        {/* Recent Students */}
+        <div style={{
+          background: '#FFFFFF',
+          borderRadius: 'var(--radius-lg, 8px)',
+          border: '1px solid var(--color-border-subtle, #E2E8F0)',
+          padding: '1.25rem',
+          boxShadow: 'var(--shadow-card)'
+        }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+            <h3 style={{ fontSize: '0.9375rem', fontWeight: 600, margin: 0, color: 'var(--color-text-main)' }}>
+              Học Viên Mới Đăng Ký
+            </h3>
+            <Link to="/admin/students" style={{ color: 'var(--color-primary-600)', fontSize: '0.8125rem' }}>
+              Xem thêm
+            </Link>
+          </div>
+          {data.recentStudents && data.recentStudents.length > 0 ? (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+              {data.recentStudents.map((st, i) => (
+                <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.625rem 0.75rem', background: '#F8FAFC', borderRadius: '6px' }}>
+                  <div>
+                    <div style={{ fontWeight: 600, fontSize: '0.875rem', color: '#0F172A' }}>{st.fullName}</div>
+                    <div style={{ color: '#64748B', fontSize: '0.75rem' }}>{st.studentCode} • {st.phone}</div>
+                  </div>
+                  <StatusBadge status={st.academicStatus || 'active'} />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div style={{ padding: '1.5rem', textAlign: 'center', color: '#64748B', fontSize: '0.875rem' }}>
+              Chưa có học viên nào
             </div>
           )}
         </div>
 
+        {/* Recent Payments */}
+        <div style={{
+          background: '#FFFFFF',
+          borderRadius: 'var(--radius-lg, 8px)',
+          border: '1px solid var(--color-border-subtle, #E2E8F0)',
+          padding: '1.25rem',
+          boxShadow: 'var(--shadow-card)'
+        }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+            <h3 style={{ fontSize: '0.9375rem', fontWeight: 600, margin: 0, color: 'var(--color-text-main)' }}>
+              Giao Dịch Học Phí Gần Nhất
+            </h3>
+            <Link to="/admin/tuition" style={{ color: 'var(--color-primary-600)', fontSize: '0.8125rem' }}>
+              Xem thêm
+            </Link>
+          </div>
+          {data.recentPayments && data.recentPayments.length > 0 ? (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+              {data.recentPayments.map((p, i) => (
+                <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.625rem 0.75rem', background: '#F8FAFC', borderRadius: '6px' }}>
+                  <div>
+                    <div style={{ fontWeight: 600, fontSize: '0.875rem', color: '#0F172A' }}>{p.student?.fullName || 'Học viên'}</div>
+                    <div style={{ color: '#64748B', fontSize: '0.75rem' }}>
+                      {p.paymentCode} • {p.paymentMethod === 'bank_transfer' ? 'Chuyển khoản' : p.paymentMethod === 'cash' ? 'Tiền mặt' : p.paymentMethod}
+                    </div>
+                  </div>
+                  <div style={{ textAlign: 'right' }}>
+                    <div style={{ fontWeight: 700, color: '#059669', fontSize: '0.875rem' }}>+{formatCurrency(p.amount)}</div>
+                    <div style={{ color: '#64748B', fontSize: '0.75rem' }}>
+                      {new Date(p.paymentDate || p.createdAt).toLocaleDateString('vi-VN')}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div style={{ padding: '1.5rem', textAlign: 'center', color: '#64748B', fontSize: '0.875rem' }}>
+              Chưa có giao dịch thanh toán nào
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
 };
+
 export default AdminDashboard;

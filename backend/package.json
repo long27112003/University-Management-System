@@ -6,8 +6,8 @@
   "scripts": {
     "start": "node server.js",
     "dev": "node server.js",
-    "seed": "node seedFresh.js",
-    "migrate-db": "node migrateToNewDb.js",
+    "seed": "node scripts/seedVLearn.js",
+    "seed:vlearn": "node scripts/seedVLearn.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

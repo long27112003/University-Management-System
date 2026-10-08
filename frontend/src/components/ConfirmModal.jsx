@@ -1,27 +1,28 @@
 import React from 'react';
 
-const ConfirmModal = ({ isOpen, title, message, onConfirm, onCancel, confirmText = "Confirm", isDanger = false }) => {
+const ConfirmModal = ({ isOpen, title, message, onConfirm, onCancel, confirmText = "Xác nhận", isDanger = false }) => {
   if (!isOpen) return null;
 
   return (
     <div style={{
       position: 'fixed',
       top: 0, left: 0, right: 0, bottom: 0,
-      backgroundColor: 'rgba(15, 23, 42, 0.6)',
-      backdropFilter: 'blur(8px)',
+      backgroundColor: 'rgba(15, 23, 42, 0.45)',
+      backdropFilter: 'blur(2px)',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
       zIndex: 9999
     }}>
-      <div className="glass-panel" style={{
+      <div style={{
         padding: '2rem',
         width: '90%',
         maxWidth: '450px',
         textAlign: 'center',
-        background: 'var(--bg-secondary)',
-        border: '1px solid rgba(255, 255, 255, 0.2)',
-        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)'
+        background: '#FFFFFF',
+        borderRadius: 'var(--radius-lg, 8px)',
+        border: '1px solid var(--color-border-subtle, #E2E8F0)',
+        boxShadow: 'var(--shadow-lg, 0 10px 25px -5px rgba(0, 0, 0, 0.1))'
       }}>
         <div style={{ 
           width: '64px', height: '64px', 
@@ -44,7 +45,7 @@ const ConfirmModal = ({ isOpen, title, message, onConfirm, onCancel, confirmText
         <p style={{ marginBottom: '2rem', color: 'var(--text-muted)' }}>{message}</p>
         <div style={{ display: 'flex', gap: '1rem' }}>
           <button className="btn btn-secondary" onClick={onCancel} style={{ flex: 1, padding: '0.75rem' }}>
-            Cancel
+            Hủy
           </button>
           <button className="btn btn-primary" onClick={onConfirm} style={{ flex: 1, padding: '0.75rem', background: isDanger ? 'var(--danger)' : 'var(--accent-gradient)', border: 'none', boxShadow: 'none' }}>
             {confirmText}
