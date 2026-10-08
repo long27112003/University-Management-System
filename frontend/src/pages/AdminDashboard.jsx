@@ -151,7 +151,6 @@ const AdminDashboard = () => {
                 }}>
                   Hệ Thống Trung Tâm VLearn
                 </span>
-                <span style={{ fontSize: '0.85rem', opacity: 0.9 }}>⚡ Quyền Quản Trị Tối Cao</span>
               </div>
               <h2 style={{ fontSize: '1.5rem', fontWeight: 800, margin: 0, color: '#FFFFFF', letterSpacing: '-0.02em' }}>
                 Xin chào Quản trị viên, {user?.fullName || 'Admin'}! 👋
