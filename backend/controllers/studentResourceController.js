@@ -85,6 +85,7 @@ const createStudent = async (req, res) => {
     emergencyContact,
     academicStatus,
     notes,
+    avatar,
     _simulateFailure // testing hook for TC2.2
   } = req.body;
 
@@ -126,7 +127,8 @@ const createStudent = async (req, res) => {
         email: normalizedEmail,
         password: passwordHash,
         role: 'Student',
-        status: 'active'
+        status: 'active',
+        avatar: avatar || ''
       }], userOptions);
 
       onRollback(async () => {
@@ -151,7 +153,8 @@ const createStudent = async (req, res) => {
         address: address || {},
         emergencyContact: emergencyContact || {},
         academicStatus: statusToSet,
-        notes: notes || ''
+        notes: notes || '',
+        avatar: avatar || ''
       }], studentOptions);
 
       onRollback(async () => {
@@ -325,7 +328,8 @@ const updateStudent = async (req, res) => {
     address,
     emergencyContact,
     academicStatus,
-    notes
+    notes,
+    avatar
   } = req.body;
 
   try {
@@ -356,17 +360,19 @@ const updateStudent = async (req, res) => {
     await executeWithSafety(async (session, onRollback) => {
       const oldEmail = student.email;
       const oldName = student.fullName;
+      const oldAvatar = student.avatar;
 
-      if (isEmailChanging || fullName) {
+      if (isEmailChanging || fullName || avatar !== undefined) {
         const userUpdate = {};
         if (isEmailChanging) userUpdate.email = newEmail;
         if (fullName) userUpdate.name = fullName.trim();
+        if (avatar !== undefined) userUpdate.avatar = avatar;
 
         const opt = session ? { session } : {};
         await User.findByIdAndUpdate(student.userId, userUpdate, opt);
 
         onRollback(async () => {
-          await User.findByIdAndUpdate(student.userId, { email: oldEmail, name: oldName });
+          await User.findByIdAndUpdate(student.userId, { email: oldEmail, name: oldName, avatar: oldAvatar });
         });
       }
 
@@ -384,6 +390,7 @@ const updateStudent = async (req, res) => {
         }
       }
       if (notes !== undefined) student.notes = notes;
+      if (avatar !== undefined) student.avatar = avatar;
 
       const saveOpt = session ? { session } : {};
       await student.save(saveOpt);

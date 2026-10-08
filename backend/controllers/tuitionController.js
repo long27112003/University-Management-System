@@ -304,7 +304,9 @@ const createPayment = async (req, res) => {
   try {
     const result = await runInTransaction(async (session) => {
       // 1. Load invoice inside session
-      const invoice = await TuitionInvoice.findById(invoiceId).session(session);
+      const invoice = session
+        ? await TuitionInvoice.findById(invoiceId).session(session)
+        : await TuitionInvoice.findById(invoiceId);
       if (!invoice) {
         const err = new Error('Không tìm thấy hóa đơn học phí');
         err.statusCode = 404;
@@ -351,7 +353,7 @@ const createPayment = async (req, res) => {
             createdBy: req.user._id,
           },
         ],
-        { session }
+        session ? { session } : {}
       );
 
       // Support simulated test failure hook for TC7.12
@@ -466,7 +468,9 @@ const voidPayment = async (req, res) => {
 
   try {
     const result = await runInTransaction(async (session) => {
-      const payment = await Payment.findById(id).session(session);
+      const payment = session
+        ? await Payment.findById(id).session(session)
+        : await Payment.findById(id);
       if (!payment) {
         const err = new Error('Không tìm thấy phiếu thu');
         err.statusCode = 404;
@@ -485,7 +489,7 @@ const voidPayment = async (req, res) => {
       payment.voidedBy = req.user._id;
       payment.voidedAt = new Date();
 
-      await payment.save({ session });
+      await payment.save(session ? { session } : {});
 
       // Recalculate invoice inside session
       const updatedInvoice = await recalculateInvoiceFinancials(payment.invoice, session);

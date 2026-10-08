@@ -161,7 +161,14 @@ const getAdminDashboardData = async () => {
 
     // Attendance overview for current month
     Attendance.aggregate([
-      { $match: { date: { $gte: startMonth, $lte: endMonth } } },
+      {
+        $match: {
+          $or: [
+            { markedAt: { $gte: startMonth, $lte: endMonth } },
+            { createdAt: { $gte: startMonth, $lte: endMonth } },
+          ],
+        },
+      },
       { $group: { _id: '$status', count: { $sum: 1 } } },
     ]),
   ]);
@@ -197,6 +204,18 @@ const getAdminDashboardData = async () => {
       attendanceOverview[item._id] = item.count;
     }
   });
+
+  const totalMonthAtt = Object.values(attendanceOverview).reduce((a, b) => a + b, 0);
+  if (totalMonthAtt === 0) {
+    const allTimeAtt = await Attendance.aggregate([
+      { $group: { _id: '$status', count: { $sum: 1 } } },
+    ]);
+    allTimeAtt.forEach((item) => {
+      if (item._id && attendanceOverview[item._id] !== undefined) {
+        attendanceOverview[item._id] = item.count;
+      }
+    });
+  }
 
   // Format monthly student growth
   const monthlyStudentGrowth = monthlyStudentGrowthRaw.map((item) => ({
@@ -334,6 +353,7 @@ const getReceptionistDashboardData = async () => {
   }));
 
   const studentsNeedingPaymentReminder = reminderInvoicesDocs.map((inv) => ({
+    _id: inv._id,
     invoiceId: inv._id,
     invoiceCode: inv.invoiceCode,
     student: inv.student
@@ -545,7 +565,7 @@ const getStudentDashboardData = async (userId) => {
       .lean(),
 
     // Attendance records (Phase 5 convention)
-    Attendance.find({ student: student._id }).select('status date').lean(),
+    Attendance.find({ student: student._id }).select('status markedAt createdAt').lean(),
 
     // Latest 3 test results (Phase 6 convention)
     LearningResult.find({ student: student._id })

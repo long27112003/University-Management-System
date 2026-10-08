@@ -63,6 +63,7 @@ const TopNav = ({ title, onMenuToggle, noticesPath }) => {
         {noticesPath && (
           <Link
             to={noticesPath}
+            className="top-nav-bell zoom-hover-sm"
             aria-label="Thông báo trung tâm"
             style={{
               display: 'flex',
@@ -74,7 +75,7 @@ const TopNav = ({ title, onMenuToggle, noticesPath }) => {
               color: 'var(--color-text-muted, #64748B)',
               backgroundColor: 'var(--color-bg-app, #F8FAFC)',
               border: '1px solid var(--color-border-subtle, #E2E8F0)',
-              transition: 'color 0.15s ease'
+              transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)'
             }}
           >
             <Bell size={18} />
@@ -82,21 +83,38 @@ const TopNav = ({ title, onMenuToggle, noticesPath }) => {
         )}
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <div style={{
-            width: '36px',
-            height: '36px',
-            borderRadius: '50%',
-            backgroundColor: 'var(--color-primary-50, #EFF6FF)',
-            color: 'var(--color-primary-600, #2563EB)',
-            border: '1px solid #BFDBFE',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontWeight: 600,
-            fontSize: '0.875rem',
-            flexShrink: 0
-          }}>
-            {user?.name?.charAt(0).toUpperCase() || <User size={18} />}
+          <div
+            className="top-nav-avatar zoom-hover-sm"
+            style={{
+              width: '36px',
+              height: '36px',
+              borderRadius: '50%',
+              backgroundColor: 'var(--color-primary-50, #EFF6FF)',
+              color: 'var(--color-primary-600, #2563EB)',
+              border: '1px solid #BFDBFE',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontWeight: 600,
+              fontSize: '0.875rem',
+              flexShrink: 0,
+              overflow: 'hidden'
+            }}
+          >
+            {user?.avatar ? (
+              <img
+                src={user.avatar}
+                alt={user?.name || 'User'}
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                onError={(e) => {
+                  e.target.style.display = 'none';
+                  if (e.target.nextSibling) e.target.nextSibling.style.display = 'block';
+                }}
+              />
+            ) : null}
+            <span style={{ display: user?.avatar ? 'none' : 'block' }}>
+              {user?.name?.charAt(0).toUpperCase() || <User size={18} />}
+            </span>
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column' }}>

@@ -2,21 +2,41 @@ const mongoose = require('mongoose');
 const TuitionInvoice = require('../models/TuitionInvoice');
 const Payment = require('../models/Payment');
 
+let isReplicaSet = null;
+const checkReplicaSet = async () => {
+  if (isReplicaSet !== null) return isReplicaSet;
+  try {
+    const adminDb = mongoose.connection.db.admin();
+    const hello = await adminDb.command({ hello: 1 });
+    isReplicaSet = Boolean(hello.setName || hello.msg === 'isdbgrid');
+  } catch (e) {
+    isReplicaSet = false;
+  }
+  return isReplicaSet;
+};
+
 /**
  * Execute work inside a real MongoDB multi-document session transaction
+ * Fallback to standard execution on standalone MongoDB (dev environment)
  */
 const runInTransaction = async (workFn) => {
-  const session = await mongoose.startSession();
-  try {
-    session.startTransaction();
-    const result = await workFn(session);
-    await session.commitTransaction();
-    return result;
-  } catch (error) {
-    await session.abortTransaction();
-    throw error;
-  } finally {
-    session.endSession();
+  const supportsTransactions = await checkReplicaSet();
+  if (supportsTransactions) {
+    const session = await mongoose.startSession();
+    try {
+      session.startTransaction();
+      const result = await workFn(session);
+      await session.commitTransaction();
+      return result;
+    } catch (error) {
+      await session.abortTransaction();
+      throw error;
+    } finally {
+      session.endSession();
+    }
+  } else {
+    // Standalone MongoDB (Local dev)
+    return await workFn(null);
   }
 };
 
@@ -95,13 +115,14 @@ const generatePaymentCode = async (session) => {
  * Calculate authoritative financial amounts and status from completed payments
  */
 const recalculateInvoiceFinancials = async (invoiceId, session) => {
-  const invoice = await TuitionInvoice.findById(invoiceId).session(session || null);
+  const invoice = session
+    ? await TuitionInvoice.findById(invoiceId).session(session)
+    : await TuitionInvoice.findById(invoiceId);
   if (!invoice) throw new Error('Invoice not found');
 
-  const payments = await Payment.find({
-    invoice: invoiceId,
-    status: 'completed',
-  }).session(session || null);
+  const payments = session
+    ? await Payment.find({ invoice: invoiceId, status: 'completed' }).session(session)
+    : await Payment.find({ invoice: invoiceId, status: 'completed' });
 
   const authoritativePaid = payments.reduce((sum, p) => sum + p.amount, 0);
   const remaining = Math.max(0, invoice.totalAmount - authoritativePaid);
@@ -127,7 +148,7 @@ const recalculateInvoiceFinancials = async (invoiceId, session) => {
     }
   }
 
-  await invoice.save({ session: session || null });
+  await invoice.save(session ? { session } : {});
   return invoice;
 };
 

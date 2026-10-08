@@ -1,16 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import {
   BookOpen, Users, Calendar, CheckSquare, Clock,
   AlertCircle, ChevronRight, CheckCircle2, ClipboardCheck
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
+import { AuthContext } from '../context/AuthContext';
 import {
   PageHeader, StatCard, StatusBadge, SkillBadge,
   LoadingSkeleton, ErrorState
 } from '../components/common';
 
 const TeacherDashboard = () => {
+  const { user } = useContext(AuthContext);
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -60,20 +62,97 @@ const TeacherDashboard = () => {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.75rem' }}>
-      {/* Page Header */}
-      <PageHeader
-        title="Bảng Điều Khiển Giảng Viên"
-        subtitle="Quản lý ca giảng dạy hôm nay, điểm danh học viên và theo dõi tiến độ các lớp"
-        action={
-          <button
-            onClick={() => navigate('/teacher/attendance')}
-            className="btn btn-primary"
-          >
-            <ClipboardCheck size={16} />
-            Điểm danh buổi học
-          </button>
-        }
-      />
+      {/* Welcome Hero Banner */}
+      <div
+        className="hero-welcome-banner"
+        style={{
+          background: 'linear-gradient(135deg, #065F46 0%, #059669 50%, #10B981 100%)',
+          boxShadow: '0 12px 32px -8px rgba(5, 150, 105, 0.35)'
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1.25rem', position: 'relative', zIndex: 1 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
+            {user?.avatar ? (
+              <img
+                src={user.avatar}
+                alt={user?.fullName || 'Giảng viên'}
+                style={{
+                  width: '64px',
+                  height: '64px',
+                  borderRadius: '50%',
+                  objectFit: 'cover',
+                  border: '3px solid rgba(255, 255, 255, 0.45)',
+                  boxShadow: '0 8px 16px rgba(0,0,0,0.25)'
+                }}
+              />
+            ) : (
+              <div style={{
+                width: '64px',
+                height: '64px',
+                borderRadius: '50%',
+                background: 'rgba(255,255,255,0.25)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#FFFFFF',
+                fontSize: '1.5rem',
+                fontWeight: 800,
+                border: '3px solid rgba(255, 255, 255, 0.45)',
+                boxShadow: '0 8px 16px rgba(0,0,0,0.25)'
+              }}>
+                {user?.fullName?.charAt(0) || 'G'}
+              </div>
+            )}
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.35rem' }}>
+                <span style={{
+                  fontSize: '0.75rem',
+                  fontWeight: 700,
+                  letterSpacing: '0.05em',
+                  textTransform: 'uppercase',
+                  background: 'rgba(255, 255, 255, 0.2)',
+                  padding: '2px 8px',
+                  borderRadius: '999px',
+                  backdropFilter: 'blur(4px)'
+                }}>
+                  Giảng viên VLearn
+                </span>
+                <span style={{ fontSize: '0.85rem', opacity: 0.9 }}>🎓 Giảng viên chuyên ngữ IELTS</span>
+              </div>
+              <h2 style={{ fontSize: '1.5rem', fontWeight: 800, margin: 0, color: '#FFFFFF', letterSpacing: '-0.02em' }}>
+                Xin chào Thầy/Cô, {user?.fullName || 'Giảng viên'}! ✨
+              </h2>
+              <p style={{ margin: '0.25rem 0 0', fontSize: '0.875rem', opacity: 0.9, color: 'rgba(255, 255, 255, 0.9)' }}>
+                Hôm nay thầy cô có {data.todaySchedule ? data.todaySchedule.length : 0} ca giảng dạy. Hãy kiểm tra thời khóa biểu và điểm danh cho các em nhé!
+              </p>
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', gap: '0.75rem' }}>
+            <button
+              onClick={() => navigate('/teacher/attendance')}
+              className="zoom-hover-sm"
+              style={{
+                background: '#FFFFFF',
+                border: 'none',
+                color: '#065F46',
+                borderRadius: '10px',
+                padding: '0.65rem 1.15rem',
+                fontSize: '0.875rem',
+                fontWeight: 700,
+                cursor: 'pointer',
+                boxShadow: '0 4px 14px rgba(0,0,0,0.15)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.45rem'
+              }}
+            >
+              <ClipboardCheck size={16} />
+              Điểm danh buổi học
+            </button>
+          </div>
+        </div>
+      </div>
 
       {/* Row 1: KPI Cards */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem' }}>
@@ -138,6 +217,7 @@ const TeacherDashboard = () => {
             {data.todaySchedule.map((session, idx) => (
               <div
                 key={idx}
+                className="list-item-hover zoom-hover-sm"
                 style={{
                   padding: '1rem',
                   borderRadius: 'var(--radius-md, 6px)',
@@ -236,7 +316,7 @@ const TeacherDashboard = () => {
               </thead>
               <tbody>
                 {data.assignedClasses.map((cls, idx) => (
-                  <tr key={idx} style={{ borderBottom: '1px solid #E2E8F0' }}>
+                  <tr key={idx} className="table-row-hover" style={{ borderBottom: '1px solid #E2E8F0' }}>
                     <td style={{ padding: '10px 12px', fontWeight: 600, color: 'var(--color-primary-600)' }}>
                       {cls.classCode}
                     </td>

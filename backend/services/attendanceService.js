@@ -47,7 +47,7 @@ const getSessionAttendanceRoster = async (sessionId, requestingUser) => {
   const activeEnrollments = await Enrollment.find({
     class: sessionDoc.class._id,
     status: 'active'
-  }).populate('student', 'studentCode fullName gender phone email academicStatus');
+  }).populate('student', 'studentCode fullName gender phone email academicStatus avatar');
 
   // Lấy các bản ghi điểm danh hiện có của buổi học này
   const existingRecords = await Attendance.find({ session: sessionId }).lean();
@@ -68,6 +68,7 @@ const getSessionAttendanceRoster = async (sessionId, requestingUser) => {
         fullName: st.fullName,
         gender: st.gender,
         phone: st.phone,
+        avatar: st.avatar || '',
         status: existing ? existing.status : null,
         note: existing ? (existing.note || '') : '',
         markedAt: existing ? existing.markedAt : null

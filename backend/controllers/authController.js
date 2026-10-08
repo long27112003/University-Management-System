@@ -1,40 +1,108 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const Student = require('../models/Student');
+
 const generateToken = (id, role) => {
   return jwt.sign({ id, role }, process.env.JWT_SECRET, { expiresIn: '30d' });
 };
+
+// Helper to generate unique studentCode
+const generateUniqueStudentCode = async () => {
+  const currentYear = new Date().getFullYear();
+  const prefix = `VL-HV${currentYear}`;
+  
+  const lastStudent = await Student.findOne({
+    studentCode: new RegExp(`^${prefix}`)
+  }).sort({ studentCode: -1 });
+
+  let nextSeq = 1;
+  if (lastStudent && lastStudent.studentCode) {
+    const matched = lastStudent.studentCode.match(/VL-HV\d{4}(\d+)/);
+    if (matched && matched[1]) {
+      nextSeq = parseInt(matched[1], 10) + 1;
+    }
+  }
+
+  const paddedSeq = String(nextSeq).padStart(3, '0');
+  return `${prefix}${paddedSeq}`;
+};
+
 const registerUser = async (req, res) => {
-  const { name, email, password, role } = req.body;
+  const { name, fullName, email, password, phone, role, gender, dateOfBirth } = req.body;
+  const studentName = (fullName || name || '').trim();
+  const studentEmail = (email || '').trim().toLowerCase();
+  const studentPhone = (phone || '').trim();
+
+  if (!studentName || !studentEmail || !password) {
+    return res.status(400).json({ message: 'Vui lòng điền đầy đủ họ tên, email và mật khẩu' });
+  }
+
+  if (password.length < 6) {
+    return res.status(400).json({ message: 'Mật khẩu phải có tối thiểu 6 ký tự' });
+  }
+
+  if (role && role !== 'Student') {
+    return res.status(403).json({ message: 'Không được phép tự đăng ký với vai trò nhân sự hoặc quản trị' });
+  }
+
   try {
-    const userExists = await User.findOne({ email });
+    const userExists = await User.findOne({ email: studentEmail });
     if (userExists) {
-      return res.status(400).json({ message: 'User already exists' });
+      return res.status(400).json({ message: 'Email này đã tồn tại trên hệ thống. Vui lòng đăng nhập.' });
     }
-    if (role && role !== 'Student') {
-      return res.status(403).json({ message: 'Không được phép tự đăng ký với vai trò nhân sự hoặc quản trị' });
+
+    if (studentPhone) {
+      const phoneExists = await Student.findOne({ phone: studentPhone });
+      if (phoneExists) {
+        return res.status(400).json({ message: 'Số điện thoại này đã được sử dụng bởi một tài khoản khác' });
+      }
     }
+
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
+
     const user = await User.create({
-      name,
-      email,
+      name: studentName,
+      email: studentEmail,
       password: hashedPassword,
-      role: 'Student'
+      role: 'Student',
+      status: 'active'
     });
-    if (user) {
-      res.status(201).json({
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        token: generateToken(user._id, user.role)
+
+    let studentDoc = null;
+    try {
+      const studentCode = await generateUniqueStudentCode();
+      studentDoc = await Student.create({
+        userId: user._id,
+        studentCode,
+        fullName: studentName,
+        email: studentEmail,
+        phone: studentPhone || `09${Math.floor(10000000 + Math.random() * 90000000)}`,
+        gender: gender || 'other',
+        dateOfBirth: dateOfBirth ? new Date(dateOfBirth) : null,
+        academicStatus: 'waiting'
       });
-    } else {
-      res.status(400).json({ message: 'Invalid user data' });
+    } catch (profileError) {
+      // Rollback user creation if student profile creation fails
+      await User.findByIdAndDelete(user._id);
+      throw profileError;
     }
+
+    const token = generateToken(user._id, user.role);
+    const userObj = user.toObject();
+    delete userObj.password;
+
+    res.status(201).json({
+      success: true,
+      message: 'Đăng ký tài khoản học viên thành công',
+      ...userObj,
+      studentId: studentDoc._id,
+      studentCode: studentDoc.studentCode,
+      token
+    });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: error.message || 'Lỗi xử lý đăng ký tài khoản' });
   }
 };
 const authUser = async (req, res) => {

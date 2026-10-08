@@ -75,6 +75,7 @@ const PaymentModal = ({ isOpen, onClose, invoice, onSuccess }) => {
 
   return (
     <div
+      className="modal-backdrop"
       style={{
         position: 'fixed',
         inset: 0,
@@ -88,6 +89,7 @@ const PaymentModal = ({ isOpen, onClose, invoice, onSuccess }) => {
       onClick={onClose}
     >
       <div
+        className="modal-dialog"
         style={{
           background: '#FFFFFF',
           borderRadius: '12px',

@@ -346,17 +346,20 @@ const AccountManagement = () => {
 
       {/* Modal: Create Account */}
       {showCreateModal && (
-        <div style={{
-          position: 'fixed',
-          top: 0, left: 0, right: 0, bottom: 0,
-          backgroundColor: 'rgba(0, 0, 0, 0.5)',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          zIndex: 9999,
-          padding: '1rem'
-        }}>
-          <div className="glass-panel" style={{
+        <div
+          className="modal-backdrop"
+          style={{
+            position: 'fixed',
+            top: 0, left: 0, right: 0, bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            zIndex: 9999,
+            padding: '1rem'
+          }}
+        >
+          <div className="glass-panel modal-dialog" style={{
             background: 'var(--bg-secondary)',
             width: '100%',
             maxWidth: '500px',
@@ -447,17 +450,20 @@ const AccountManagement = () => {
 
       {/* Modal: Change Role */}
       {roleModalTarget && (
-        <div style={{
-          position: 'fixed',
-          top: 0, left: 0, right: 0, bottom: 0,
-          backgroundColor: 'rgba(0, 0, 0, 0.5)',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          zIndex: 9999,
-          padding: '1rem'
-        }}>
-          <div className="glass-panel" style={{
+        <div
+          className="modal-backdrop"
+          style={{
+            position: 'fixed',
+            top: 0, left: 0, right: 0, bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            zIndex: 9999,
+            padding: '1rem'
+          }}
+        >
+          <div className="glass-panel modal-dialog" style={{
             background: 'var(--bg-secondary)',
             width: '100%',
             maxWidth: '520px',

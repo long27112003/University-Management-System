@@ -159,6 +159,15 @@ button {
   border: 1px solid var(--color-border-subtle);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-card);
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.25s ease;
+}
+.glass-panel:hover,
+.card-panel:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px -4px rgba(15, 23, 42, 0.08), 0 2px 6px -1px rgba(15, 23, 42, 0.03);
+  border-color: #CBD5E1;
 }
 
 /* ─── Custom Scrollbar ───────────────────────────────────── */
@@ -266,15 +275,16 @@ button {
   border-radius: var(--radius-md);
   color: var(--color-text-main);
   font-size: 0.875rem;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition: border-color 0.2s ease, box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1), transform 0.15s ease;
 }
 .form-input:focus {
   outline: none;
   border-color: var(--color-primary-600);
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+  transform: scale(1.004);
 }
 
-/* ─── Buttons ────────────────────────────────────────────── */
+/* ─── Buttons with Hover & Micro-Zoom ────────────────────── */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -283,11 +293,26 @@ button {
   padding: 0.5rem 1rem;
   font-weight: 500;
   border-radius: var(--radius-md);
-  transition: all 0.2s ease;
+  transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.18s cubic-bezier(0.16, 1, 0.3, 1),
+              background-color 0.18s ease,
+              border-color 0.18s ease,
+              color 0.18s ease;
   font-size: 0.875rem;
   white-space: nowrap;
   cursor: pointer;
   border: 1px solid transparent;
+  user-select: none;
+}
+.btn:hover {
+  transform: translateY(-1.5px) scale(1.02);
+}
+.btn:active {
+  transform: translateY(1px) scale(0.975);
+}
+.btn:hover svg {
+  transform: scale(1.1);
+  transition: transform 0.18s ease;
 }
 .btn-primary {
   background-color: var(--color-primary-600);
@@ -296,6 +321,7 @@ button {
 }
 .btn-primary:hover {
   background-color: var(--color-primary-700);
+  box-shadow: 0 6px 18px -2px rgba(37, 99, 235, 0.35);
 }
 .btn-secondary {
   background-color: var(--color-surface);
@@ -304,6 +330,8 @@ button {
 }
 .btn-secondary:hover {
   background-color: var(--color-surface-hover);
+  border-color: #94A3B8;
+  box-shadow: 0 4px 12px -2px rgba(15, 23, 42, 0.08);
 }
 .btn-danger {
   background-color: var(--color-danger);
@@ -311,17 +339,106 @@ button {
 }
 .btn-danger:hover {
   background-color: #DC2626;
+  box-shadow: 0 6px 18px -2px rgba(239, 68, 68, 0.35);
 }
 
-/* ─── Table Utilities ────────────────────────────────────── */
+/* ─── Stat Cards & KPI Panels (Hover Lift & Icon Rotate) ─── */
+.stat-card {
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.25s ease !important;
+}
+.stat-card:hover {
+  transform: translateY(-4px) scale(1.01);
+  box-shadow: 0 12px 28px -6px rgba(15, 23, 42, 0.09), 0 4px 10px -2px rgba(15, 23, 42, 0.04) !important;
+  border-color: #CBD5E1 !important;
+}
+.stat-icon {
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+.stat-card:hover .stat-icon {
+  transform: scale(1.15) rotate(5deg) !important;
+}
+
+/* ─── Badges & Status Zoom ───────────────────────────────── */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.2s ease !important;
+  cursor: default;
+}
+.status-badge:hover {
+  transform: scale(1.08) !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08) !important;
+}
+
+/* ─── Sidebar Navigation Micro-Interactions ──────────────── */
+.sidebar-nav-link {
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+              background-color 0.18s ease,
+              color 0.18s ease !important;
+}
+.sidebar-nav-link:hover {
+  transform: translateX(4px);
+}
+.sidebar-nav-link:hover span svg,
+.sidebar-nav-link:hover svg {
+  transform: scale(1.15);
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.sidebar-nav-link:active {
+  transform: translateX(2px) scale(0.98);
+}
+
+.sidebar-brand-header img {
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.sidebar-brand-header:hover img {
+  transform: scale(1.05);
+}
+
+/* ─── Top Navigation Bell & Profile Zoom ─────────────────── */
+.top-nav-bell {
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+              background-color 0.18s ease,
+              color 0.18s ease,
+              box-shadow 0.18s ease !important;
+}
+.top-nav-bell:hover {
+  transform: scale(1.12) rotate(6deg) !important;
+  background-color: var(--color-primary-50) !important;
+  color: var(--color-primary-600) !important;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.15) !important;
+}
+.top-nav-bell:active {
+  transform: scale(0.95) !important;
+}
+
+.top-nav-avatar {
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.2s ease !important;
+}
+.top-nav-avatar:hover {
+  transform: scale(1.1) !important;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.25) !important;
+}
+
+/* ─── Table Utilities & Row Hover ────────────────────────── */
 .table-responsive {
   width: 100%;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
 }
 
+.table-row-hover {
+  transition: background-color 0.18s ease,
+              transform 0.18s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.18s ease !important;
+}
 .table-row-hover:hover {
   background-color: var(--color-surface-hover) !important;
+  transform: translateX(3px);
 }
 
 .data-table {
@@ -344,11 +461,228 @@ button {
   font-size: 0.75rem;
   letter-spacing: 0.05em;
 }
+.data-table tbody tr {
+  transition: background-color 0.18s ease,
+              transform 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
 .data-table tbody tr:hover {
   background-color: var(--color-surface-hover);
+  transform: translateX(3px);
 }
 
-/* ─── Loading Shimmer Animation ──────────────────────────── */
+/* Action buttons inside table rows */
+.data-table tbody tr button,
+.table-row-hover button {
+  transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1),
+              background-color 0.18s ease,
+              box-shadow 0.18s ease !important;
+}
+.data-table tbody tr button:hover,
+.table-row-hover button:hover {
+  transform: scale(1.12) !important;
+}
+.data-table tbody tr button:active,
+.table-row-hover button:active {
+  transform: scale(0.92) !important;
+}
+
+/* ─── List Items & Schedule Hover ────────────────────────── */
+.list-item-hover {
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+              background-color 0.2s ease,
+              border-color 0.2s ease,
+              box-shadow 0.2s ease !important;
+}
+.list-item-hover:hover {
+  transform: translateX(4px);
+  background-color: #FFFFFF !important;
+  border-color: #CBD5E1 !important;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05) !important;
+}
+
+/* ─── Zoom & Motion Utility Classes ──────────────────────── */
+.zoom-hover {
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease !important;
+}
+.zoom-hover:hover {
+  transform: scale(1.05) !important;
+}
+
+.zoom-hover-sm {
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease !important;
+}
+.zoom-hover-sm:hover {
+  transform: scale(1.03) !important;
+}
+
+.zoom-hover-lg {
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease !important;
+}
+.zoom-hover-lg:hover {
+  transform: scale(1.08) !important;
+}
+
+.zoom-hover-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+.zoom-hover-icon:hover {
+  transform: scale(1.2) !important;
+}
+
+/* ─── Rich Visual Aesthetic Enhancements ─────────────────── */
+.stat-card {
+  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.22s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease !important;
+  position: relative;
+  overflow: hidden;
+}
+.stat-card:hover {
+  transform: translateY(-3px) !important;
+  box-shadow: 0 12px 28px -6px rgba(15, 23, 42, 0.08), 0 6px 12px -4px rgba(15, 23, 42, 0.04) !important;
+  border-color: #CBD5E1 !important;
+}
+.stat-card .stat-icon {
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease !important;
+}
+.stat-card:hover .stat-icon {
+  transform: scale(1.12) rotate(3deg) !important;
+}
+
+/* Hero Welcome Banner */
+.hero-welcome-banner {
+  background: linear-gradient(135deg, #1E3A8A 0%, #2563EB 50%, #4F46E5 100%);
+  border-radius: 16px;
+  padding: 1.75rem 2rem;
+  color: #FFFFFF;
+  box-shadow: 0 12px 32px -8px rgba(37, 99, 235, 0.35);
+  position: relative;
+  overflow: hidden;
+  transition: box-shadow 0.3s ease;
+}
+.hero-welcome-banner:hover {
+  box-shadow: 0 16px 36px -8px rgba(37, 99, 235, 0.45);
+}
+
+/* Modern Empty State */
+.empty-state-modern {
+  background: #FFFFFF;
+  border-radius: 16px;
+  border: 1px solid var(--color-border-subtle, #E2E8F0);
+  padding: 3.5rem 2rem;
+  text-align: center;
+  box-shadow: var(--shadow-card);
+  position: relative;
+  overflow: hidden;
+}
+.empty-state-icon-glow {
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  margin: 0 auto 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle, #EFF6FF 0%, #DBEAFE 100%);
+  color: #2563EB;
+  border: 2px solid #BFDBFE;
+  box-shadow: 0 8px 24px -4px rgba(37, 99, 235, 0.25);
+  animation: floatSubtle 3s ease-in-out infinite;
+}
+@keyframes floatSubtle {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+/* Sidebar Nav Enhancements */
+.sidebar-nav-link {
+  position: relative;
+}
+.sidebar-nav-link:hover .sidebar-item-icon-box {
+  transform: scale(1.1);
+}
+.sidebar-nav-link.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 15%;
+  height: 70%;
+  width: 3.5px;
+  border-radius: 0 4px 4px 0;
+  background: currentColor;
+}
+
+/* ─── Keyframe Animations (Modals, Toasts, Pages) ────────── */
+@keyframes pageFadeSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes modalZoomIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes modalZoomOut {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+}
+
+@keyframes backdropFadeIn {
+  from {
+    opacity: 0;
+    backdrop-filter: blur(0px);
+  }
+  to {
+    opacity: 1;
+    backdrop-filter: blur(2px);
+  }
+}
+
+@keyframes toastSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(100%) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+@keyframes popIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.85);
+  }
+  70% {
+    transform: scale(1.04);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
 @keyframes shimmerPulse {
   0% { opacity: 1; }
   50% { opacity: 0.45; }
@@ -357,6 +691,34 @@ button {
 
 .skeleton-pulse {
   animation: shimmerPulse 1.5s ease-in-out infinite;
+}
+
+/* ─── Modals & Dialogs Auto-Zoom Entrance ────────────────── */
+.modal-backdrop,
+.modal-overlay {
+  animation: backdropFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.modal-dialog,
+.modal-box,
+.zoom-in-modal,
+[role="dialog"] > div:not(.sidebar-wrapper) {
+  animation: modalZoomIn 0.24s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+  transform-origin: center center;
+}
+
+/* ─── Auth Cards (Login & Register) ──────────────────────── */
+.auth-card {
+  animation: modalZoomIn 0.32s cubic-bezier(0.16, 1, 0.3, 1) both;
+  transition: transform 0.25s ease, box-shadow 0.25s ease !important;
+}
+.auth-card:hover {
+  box-shadow: 0 10px 30px -4px rgba(15, 23, 42, 0.12) !important;
+}
+
+/* ─── Page View Smooth Fade-In ───────────────────────────── */
+.main-content > div {
+  animation: pageFadeSlideIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 /* ─── Responsive Breakpoints ─────────────────────────────── */

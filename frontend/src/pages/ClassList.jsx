@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { AuthContext } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
+import { SkillBadge, StatusBadge, EmptyState } from '../components/common';
 
 const ClassList = () => {
   const { user } = useContext(AuthContext);
@@ -297,10 +298,40 @@ const ClassList = () => {
           Đang tải danh sách lớp học...
         </div>
       ) : classes.length === 0 ? (
-        <div className="glass-panel" style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-muted)' }}>
-          <BookOpen size={40} style={{ margin: '0 auto 1rem', opacity: 0.5 }} />
-          <p>Không tìm thấy lớp học nào phù hợp với bộ lọc.</p>
-        </div>
+        <EmptyState
+          icon={<BookOpen size={36} color="#3B82F6" />}
+          title={user?.role === 'Student' ? 'Bạn chưa có lớp học nào đang tham gia' : 'Không tìm thấy lớp học phù hợp'}
+          description={
+            user?.role === 'Student'
+              ? 'Bạn hiện chưa được ghi danh vào lớp học nào. Hãy liên hệ bộ phận Tuyển sinh hoặc Cố vấn học tập để nhận tư vấn và xếp lớp IELTS phù hợp với mục tiêu của bạn.'
+              : 'Không tìm thấy lớp học nào khớp với từ khóa hoặc bộ lọc hiện tại. Hãy thử chọn kỹ năng hoặc trạng thái khác.'
+          }
+          extra={
+            user?.role === 'Student' ? (
+              <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+                <SkillBadge skill="listening" />
+                <SkillBadge skill="speaking" />
+                <SkillBadge skill="reading" />
+                <SkillBadge skill="writing" />
+              </div>
+            ) : null
+          }
+          action={
+            (search || skillFilter || statusFilter || teacherFilter) ? (
+              <button
+                className="btn btn-secondary zoom-hover-sm"
+                onClick={() => {
+                  setSearch('');
+                  setSkillFilter('');
+                  setStatusFilter('');
+                  setTeacherFilter('');
+                }}
+              >
+                Xóa tất cả bộ lọc
+              </button>
+            ) : null
+          }
+        />
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(360px, 1fr))', gap: '1.25rem' }}>
           {classes.map((c) => {
@@ -310,15 +341,18 @@ const ClassList = () => {
             return (
               <div
                 key={c._id}
-                className="glass-panel"
+                className="glass-panel zoom-hover-sm"
                 onClick={() => navigate(`${detailPathPrefix}/${c._id}`)}
                 style={{
                   padding: '1.25rem',
                   cursor: 'pointer',
-                  transition: 'all 0.2s ease',
                   display: 'flex',
                   flexDirection: 'column',
-                  justifyContent: 'space-between'
+                  justifyContent: 'space-between',
+                  borderRadius: '14px',
+                  border: '1px solid #E2E8F0',
+                  boxShadow: '0 4px 12px rgba(15, 23, 42, 0.04)',
+                  transition: 'all 0.25s ease'
                 }}
               >
                 <div>
@@ -328,28 +362,63 @@ const ClassList = () => {
                       <span style={{ fontWeight: '700', color: 'var(--accent-primary)', fontFamily: 'monospace', fontSize: '0.95rem' }}>
                         {c.classCode}
                       </span>
-                      {renderSkillBadge(c.skill)}
+                      <SkillBadge skill={c.skill} />
                     </div>
-                    {renderStatusBadge(c.status)}
+                    <StatusBadge status={c.status} />
                   </div>
 
                   {/* Class Name */}
-                  <h3 style={{ fontSize: '1.1rem', fontWeight: '700', margin: '0 0 0.75rem', color: 'var(--text-primary)', lineHeight: '1.3' }}>
+                  <h3 style={{ fontSize: '1.05rem', fontWeight: '700', margin: '0 0 0.75rem', color: 'var(--text-primary)', lineHeight: '1.35' }}>
                     {c.className}
                   </h3>
 
                   {/* Teacher & Room */}
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '1rem' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                      <span style={{ color: 'var(--text-muted)' }}>Giảng viên:</span>
-                      <strong style={{ color: 'var(--text-primary)' }}>{c.teacher?.fullName || 'Chưa phân công'}</strong>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem', fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '1rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                      {c.teacher?.avatar ? (
+                        <img
+                          src={c.teacher.avatar}
+                          alt={c.teacher.fullName}
+                          style={{
+                            width: '32px',
+                            height: '32px',
+                            borderRadius: '50%',
+                            objectFit: 'cover',
+                            border: '1.5px solid #DBEAFE',
+                            boxShadow: '0 2px 4px rgba(0,0,0,0.06)'
+                          }}
+                        />
+                      ) : (
+                        <div style={{
+                          width: '32px',
+                          height: '32px',
+                          borderRadius: '50%',
+                          background: 'linear-gradient(135deg, #3B82F6, #2563EB)',
+                          color: '#FFFFFF',
+                          fontSize: '0.8rem',
+                          fontWeight: 700,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          boxShadow: '0 2px 4px rgba(37,99,235,0.2)'
+                        }}>
+                          {c.teacher?.fullName ? c.teacher.fullName.charAt(0) : 'G'}
+                        </div>
+                      )}
+                      <div>
+                        <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block', lineHeight: 1.1 }}>Giảng viên hướng dẫn</span>
+                        <strong style={{ color: 'var(--text-primary)', fontSize: '0.875rem' }}>
+                          {c.teacher?.fullName || 'Chưa phân công'}
+                        </strong>
+                      </div>
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                      <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                        <MapPin size={14} style={{ color: 'var(--text-muted)' }} /> {c.room}
+
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', paddingTop: '0.25rem' }}>
+                      <span style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                        <MapPin size={14} style={{ color: '#0EA5E9' }} /> {c.room || 'Phòng học'}
                       </span>
-                      <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                        <Calendar size={14} style={{ color: 'var(--text-muted)' }} />
+                      <span style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                        <Calendar size={14} style={{ color: '#EC4899' }} />
                         {c.startDate ? new Date(c.startDate).toLocaleDateString('vi-VN') : '—'}
                       </span>
                     </div>
@@ -443,17 +512,20 @@ const ClassList = () => {
 
       {/* Modal: Add / Edit Class (Admin Only) */}
       {showModal && canManageClass && (
-        <div style={{
-          position: 'fixed',
-          top: 0, left: 0, right: 0, bottom: 0,
-          backgroundColor: 'rgba(0, 0, 0, 0.5)',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          zIndex: 9999,
-          padding: '1rem'
-        }}>
-          <div className="glass-panel" style={{
+        <div
+          className="modal-backdrop"
+          style={{
+            position: 'fixed',
+            top: 0, left: 0, right: 0, bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            zIndex: 9999,
+            padding: '1rem'
+          }}
+        >
+          <div className="glass-panel modal-dialog" style={{
             background: 'var(--bg-secondary)',
             width: '100%',
             maxWidth: '620px',

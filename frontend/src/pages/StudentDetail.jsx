@@ -192,9 +192,26 @@ const StudentDetail = () => {
             width: '64px', height: '64px', borderRadius: '50%',
             background: 'var(--accent-gradient)', color: 'white',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: '1.5rem', fontWeight: '700'
+            fontSize: '1.5rem', fontWeight: '700',
+            overflow: 'hidden',
+            flexShrink: 0,
+            border: '2px solid #E2E8F0',
+            boxShadow: 'var(--shadow-md, 0 4px 6px -1px rgba(0, 0, 0, 0.1))'
           }}>
-            {student.fullName.charAt(0).toUpperCase()}
+            {student.avatar ? (
+              <img
+                src={student.avatar}
+                alt={student.fullName}
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                onError={(e) => {
+                  e.target.style.display = 'none';
+                  if (e.target.nextSibling) e.target.nextSibling.style.display = 'block';
+                }}
+              />
+            ) : null}
+            <span style={{ display: student.avatar ? 'none' : 'block' }}>
+              {student.fullName.charAt(0).toUpperCase()}
+            </span>
           </div>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>

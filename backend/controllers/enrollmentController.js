@@ -227,7 +227,7 @@ const getClassEnrollments = async (req, res) => {
     }
 
     const enrollments = await Enrollment.find(query)
-      .populate('student', 'fullName studentCode phone email academicStatus gender dateOfBirth')
+      .populate('student', 'fullName studentCode phone email academicStatus gender dateOfBirth avatar')
       .populate('transferredFrom', 'className classCode')
       .sort('-enrolledAt');
 

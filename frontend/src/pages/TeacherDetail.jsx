@@ -126,9 +126,25 @@ const TeacherDetail = () => {
             width: '60px', height: '60px', borderRadius: '50%',
             background: 'var(--color-primary-50, #EFF6FF)', color: 'var(--color-primary-600, #2563EB)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: '1.5rem', fontWeight: '700', border: '1px solid #BFDBFE'
+            fontSize: '1.5rem', fontWeight: '700', border: '1px solid #BFDBFE',
+            overflow: 'hidden',
+            flexShrink: 0,
+            boxShadow: 'var(--shadow-md, 0 4px 6px -1px rgba(0, 0, 0, 0.1))'
           }}>
-            {teacher.fullName.charAt(0).toUpperCase()}
+            {teacher.avatar ? (
+              <img
+                src={teacher.avatar}
+                alt={teacher.fullName}
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                onError={(e) => {
+                  e.target.style.display = 'none';
+                  if (e.target.nextSibling) e.target.nextSibling.style.display = 'block';
+                }}
+              />
+            ) : null}
+            <span style={{ display: teacher.avatar ? 'none' : 'block' }}>
+              {teacher.fullName.charAt(0).toUpperCase()}
+            </span>
           </div>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>

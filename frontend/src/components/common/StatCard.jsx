@@ -22,18 +22,21 @@ const StatCard = ({
   iconColor = '#2563EB'
 }) => {
   return (
-    <div style={{
-      background: 'var(--color-surface, #FFFFFF)',
-      borderRadius: 'var(--radius-lg, 8px)',
-      border: '1px solid var(--color-border-subtle, #E2E8F0)',
-      boxShadow: 'var(--shadow-card, 0 1px 3px 0 rgba(0, 0, 0, 0.05))',
-      padding: '1.25rem 1.5rem',
-      display: 'flex',
-      flexDirection: 'column',
-      justifyContent: 'space-between',
-      gap: '0.75rem',
-      transition: 'box-shadow 0.2s ease, transform 0.2s ease'
-    }}>
+    <div
+      className="stat-card"
+      style={{
+        background: 'var(--color-surface, #FFFFFF)',
+        borderRadius: 'var(--radius-lg, 8px)',
+        border: '1px solid var(--color-border-subtle, #E2E8F0)',
+        boxShadow: 'var(--shadow-card, 0 1px 3px 0 rgba(0, 0, 0, 0.05))',
+        padding: '1.25rem 1.5rem',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'space-between',
+        gap: '0.75rem',
+        cursor: 'default'
+      }}
+    >
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.75rem' }}>
         <span style={{
           fontSize: '0.9375rem',
@@ -44,17 +47,20 @@ const StatCard = ({
           {title}
         </span>
         {icon && (
-          <div style={{
-            width: '40px',
-            height: '40px',
-            borderRadius: 'var(--radius-md, 6px)',
-            background: iconBg,
-            color: iconColor,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            flexShrink: 0
-          }}>
+          <div
+            className="stat-icon"
+            style={{
+              width: '40px',
+              height: '40px',
+              borderRadius: 'var(--radius-md, 6px)',
+              background: iconBg,
+              color: iconColor,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0
+            }}
+          >
             {icon}
           </div>
         )}

@@ -30,6 +30,17 @@ export const AuthProvider = ({ children }) => {
           } else {
             setUser(parsedUser);
             axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+            // Silently sync profile to fetch updated avatar and info
+            const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+            axios.get(`${apiUrl}/api/auth/profile`)
+              .then((res) => {
+                if (res.data && res.data._id) {
+                  const merged = { ...parsedUser, ...res.data };
+                  setUser(merged);
+                  localStorage.setItem('user', JSON.stringify(merged));
+                }
+              })
+              .catch(() => {});
           }
         }
       } catch {
@@ -71,8 +82,25 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const register = async (registerData) => {
+    try {
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+      const res = await axios.post(`${apiUrl}/api/auth/register`, registerData);
+      const { token, ...userData } = res.data;
+      if (token) {
+        localStorage.setItem('token', token);
+        localStorage.setItem('user', JSON.stringify(userData));
+        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+        setUser(userData);
+      }
+      return userData;
+    } catch (error) {
+      throw error.response?.data?.message || (typeof error === 'string' ? error : 'Đăng ký tài khoản không thành công');
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, login, logout, loading }}>
+    <AuthContext.Provider value={{ user, login, register, logout, loading }}>
       {!loading && children}
     </AuthContext.Provider>
   );

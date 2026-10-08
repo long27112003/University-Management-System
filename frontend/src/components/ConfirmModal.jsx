@@ -4,26 +4,32 @@ const ConfirmModal = ({ isOpen, title, message, onConfirm, onCancel, confirmText
   if (!isOpen) return null;
 
   return (
-    <div style={{
-      position: 'fixed',
-      top: 0, left: 0, right: 0, bottom: 0,
-      backgroundColor: 'rgba(15, 23, 42, 0.45)',
-      backdropFilter: 'blur(2px)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      zIndex: 9999
-    }}>
-      <div style={{
-        padding: '2rem',
-        width: '90%',
-        maxWidth: '450px',
-        textAlign: 'center',
-        background: '#FFFFFF',
-        borderRadius: 'var(--radius-lg, 8px)',
-        border: '1px solid var(--color-border-subtle, #E2E8F0)',
-        boxShadow: 'var(--shadow-lg, 0 10px 25px -5px rgba(0, 0, 0, 0.1))'
-      }}>
+    <div
+      className="modal-backdrop"
+      style={{
+        position: 'fixed',
+        top: 0, left: 0, right: 0, bottom: 0,
+        backgroundColor: 'rgba(15, 23, 42, 0.45)',
+        backdropFilter: 'blur(2px)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 9999
+      }}
+    >
+      <div
+        className="modal-dialog"
+        style={{
+          padding: '2rem',
+          width: '90%',
+          maxWidth: '450px',
+          textAlign: 'center',
+          background: '#FFFFFF',
+          borderRadius: 'var(--radius-lg, 8px)',
+          border: '1px solid var(--color-border-subtle, #E2E8F0)',
+          boxShadow: 'var(--shadow-lg, 0 10px 25px -5px rgba(0, 0, 0, 0.1))'
+        }}
+      >
         <div style={{ 
           width: '64px', height: '64px', 
           borderRadius: '50%', 

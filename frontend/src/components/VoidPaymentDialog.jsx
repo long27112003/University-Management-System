@@ -46,6 +46,7 @@ const VoidPaymentDialog = ({ isOpen, onClose, payment, onSuccess }) => {
 
   return (
     <div
+      className="modal-backdrop"
       style={{
         position: 'fixed',
         inset: 0,
@@ -59,6 +60,7 @@ const VoidPaymentDialog = ({ isOpen, onClose, payment, onSuccess }) => {
       onClick={onClose}
     >
       <div
+        className="modal-dialog"
         style={{
           background: '#FFFFFF',
           borderRadius: '12px',

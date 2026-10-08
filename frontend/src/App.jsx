@@ -2,6 +2,7 @@ import React, { useContext, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthContext } from './context/AuthContext';
 import Login from './pages/Login';
+import Register from './pages/Register';
 import AdminLayout from './layouts/AdminLayout';
 import TeacherLayout from './layouts/TeacherLayout';
 import ReceptionistLayout from './layouts/ReceptionistLayout';
@@ -26,6 +27,7 @@ const TitleUpdater = () => {
     if (path.includes('/dashboard')) title = 'Dashboard - VLearn';
     else if (path.includes('/attendance')) title = 'Attendance - VLearn';
     else if (path.includes('/login')) title = 'Login - VLearn';
+    else if (path.includes('/register')) title = 'Register - VLearn';
     else if (path.includes('/profile')) title = 'Profile - VLearn';
     else if (path.includes('/studymaterial') || path.includes('/materials')) title = 'Study Material - VLearn';
     else if (path.includes('/notices')) title = 'Notice Board - VLearn';
@@ -60,6 +62,7 @@ const App = () => {
       <Routes>
         <Route path="/" element={getDashboardHome()} />
         <Route path="/login" element={!user ? <Login /> : getDashboardHome()} />
+        <Route path="/register" element={!user ? <Register /> : getDashboardHome()} />
         <Route path="/admin/*" element={
           <ProtectedRoute allowedRoles={['Admin']}>
             <AdminLayout />

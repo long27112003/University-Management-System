@@ -4,12 +4,13 @@ import axios from 'axios';
 import {
   ArrowLeft, BookOpen, Users, Calendar, ClipboardCheck, Award, FileText,
   UserPlus, ArrowRightLeft, UserX, MapPin, DollarSign, Clock, CheckCircle,
-  Plus, Edit2, Trash2, RefreshCw, AlertCircle, Download, Upload
+  Plus, Edit2, Trash2, RefreshCw, AlertCircle, Download, Upload, Save
 } from 'lucide-react';
 import { AuthContext } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import EnrollmentModal from '../components/EnrollmentModal';
 import TransferEnrollmentModal from '../components/TransferEnrollmentModal';
+import ConfirmModal from '../components/ConfirmModal';
 
 const DAY_NAMES = {
   2: 'Thứ Hai',
@@ -19,6 +20,13 @@ const DAY_NAMES = {
   6: 'Thứ Sáu',
   7: 'Thứ Bảy',
   8: 'Chủ Nhật'
+};
+
+const formatDate = (dateStr) => {
+  if (!dateStr) return '—';
+  const d = new Date(dateStr);
+  if (isNaN(d.getTime())) return '—';
+  return `${String(d.getUTCDate()).padStart(2, '0')}/${String(d.getUTCMonth() + 1).padStart(2, '0')}/${d.getUTCFullYear()}`;
 };
 
 const ClassDetail = () => {
@@ -786,7 +794,39 @@ const ClassDetail = () => {
                         </span>
                       </td>
                       <td>
-                        <span style={{ fontWeight: '600' }}>{enr.student?.fullName}</span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
+                          <div style={{
+                            width: '28px',
+                            height: '28px',
+                            borderRadius: '50%',
+                            backgroundColor: '#EFF6FF',
+                            color: '#2563EB',
+                            border: '1px solid #BFDBFE',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontWeight: 600,
+                            fontSize: '0.75rem',
+                            flexShrink: 0,
+                            overflow: 'hidden'
+                          }}>
+                            {enr.student?.avatar ? (
+                              <img
+                                src={enr.student.avatar}
+                                alt={enr.student?.fullName}
+                                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                onError={(e) => {
+                                  e.target.style.display = 'none';
+                                  if (e.target.nextSibling) e.target.nextSibling.style.display = 'block';
+                                }}
+                              />
+                            ) : null}
+                            <span style={{ display: enr.student?.avatar ? 'none' : 'block' }}>
+                              {enr.student?.fullName?.charAt(0).toUpperCase()}
+                            </span>
+                          </div>
+                          <span style={{ fontWeight: '600' }}>{enr.student?.fullName}</span>
+                        </div>
                       </td>
                       <td>{enr.student?.phone || '—'}</td>
                       <td>{enr.student?.email}</td>
@@ -1159,7 +1199,39 @@ const ClassDetail = () => {
                               {item.studentCode}
                             </td>
                             <td>
-                              <div style={{ fontWeight: '600' }}>{item.fullName}</div>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
+                                <div style={{
+                                  width: '28px',
+                                  height: '28px',
+                                  borderRadius: '50%',
+                                  backgroundColor: '#EFF6FF',
+                                  color: '#2563EB',
+                                  border: '1px solid #BFDBFE',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  fontWeight: 600,
+                                  fontSize: '0.75rem',
+                                  flexShrink: 0,
+                                  overflow: 'hidden'
+                                }}>
+                                  {item.avatar ? (
+                                    <img
+                                      src={item.avatar}
+                                      alt={item.fullName}
+                                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                      onError={(e) => {
+                                        e.target.style.display = 'none';
+                                        if (e.target.nextSibling) e.target.nextSibling.style.display = 'block';
+                                      }}
+                                    />
+                                  ) : null}
+                                  <span style={{ display: item.avatar ? 'none' : 'block' }}>
+                                    {item.fullName?.charAt(0).toUpperCase()}
+                                  </span>
+                                </div>
+                                <div style={{ fontWeight: '600' }}>{item.fullName}</div>
+                              </div>
                             </td>
                             <td>
                               {disabled ? (

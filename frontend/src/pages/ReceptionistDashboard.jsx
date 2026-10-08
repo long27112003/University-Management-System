@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import {
   Users, BookOpen, AlertCircle, DollarSign, Clock,
-  ChevronRight, Phone, Calendar, CreditCard, PlusCircle
+  ChevronRight, Phone, Calendar, CreditCard, PlusCircle, Sparkles
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
+import { AuthContext } from '../context/AuthContext';
 import { PageHeader, StatCard, StatusBadge, LoadingSkeleton, ErrorState } from '../components/common';
 
 const formatCurrency = (amount) => {
@@ -13,6 +14,7 @@ const formatCurrency = (amount) => {
 };
 
 const ReceptionistDashboard = () => {
+  const { user } = useContext(AuthContext);
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -62,20 +64,97 @@ const ReceptionistDashboard = () => {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.75rem' }}>
-      {/* Page Header */}
-      <PageHeader
-        title="Bảng Điều Khiển Lễ Tân"
-        subtitle="Tiếp đón học viên, theo dõi lịch phòng học hôm nay và đôn đốc học phí"
-        action={
-          <button
-            onClick={() => navigate('/receptionist/tuition')}
-            className="btn btn-primary"
-          >
-            <PlusCircle size={16} />
-            Ghi nhận thanh toán
-          </button>
-        }
-      />
+      {/* Welcome Hero Banner */}
+      <div
+        className="hero-welcome-banner"
+        style={{
+          background: 'linear-gradient(135deg, #0284C7 0%, #0369A1 50%, #075985 100%)',
+          boxShadow: '0 12px 32px -8px rgba(2, 132, 199, 0.35)'
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1.25rem', position: 'relative', zIndex: 1 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
+            {user?.avatar ? (
+              <img
+                src={user.avatar}
+                alt={user?.fullName || 'Lễ tân'}
+                style={{
+                  width: '64px',
+                  height: '64px',
+                  borderRadius: '50%',
+                  objectFit: 'cover',
+                  border: '3px solid rgba(255, 255, 255, 0.45)',
+                  boxShadow: '0 8px 16px rgba(0,0,0,0.25)'
+                }}
+              />
+            ) : (
+              <div style={{
+                width: '64px',
+                height: '64px',
+                borderRadius: '50%',
+                background: 'rgba(255,255,255,0.25)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#FFFFFF',
+                fontSize: '1.5rem',
+                fontWeight: 800,
+                border: '3px solid rgba(255, 255, 255, 0.45)',
+                boxShadow: '0 8px 16px rgba(0,0,0,0.25)'
+              }}>
+                {user?.fullName?.charAt(0) || 'L'}
+              </div>
+            )}
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.35rem' }}>
+                <span style={{
+                  fontSize: '0.75rem',
+                  fontWeight: 700,
+                  letterSpacing: '0.05em',
+                  textTransform: 'uppercase',
+                  background: 'rgba(255, 255, 255, 0.2)',
+                  padding: '2px 8px',
+                  borderRadius: '999px',
+                  backdropFilter: 'blur(4px)'
+                }}>
+                  Bộ Phận Lễ Tân & Tuyển Sinh
+                </span>
+                <span style={{ fontSize: '0.85rem', opacity: 0.9 }}>💼 Dịch Vụ Khách Hàng</span>
+              </div>
+              <h2 style={{ fontSize: '1.5rem', fontWeight: 800, margin: 0, color: '#FFFFFF', letterSpacing: '-0.02em' }}>
+                Xin chào, {user?.fullName || 'Lễ Tân'}! 🌸
+              </h2>
+              <p style={{ margin: '0.25rem 0 0', fontSize: '0.875rem', opacity: 0.9, color: 'rgba(255, 255, 255, 0.9)' }}>
+                Tháng này có {data.newStudentsThisMonth || 0} học viên mới nhập học và {data.upcomingClasses ? data.upcomingClasses.length : 0} lớp sắp khai giảng trong 14 ngày tới.
+              </p>
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', gap: '0.75rem' }}>
+            <button
+              onClick={() => navigate('/receptionist/tuition')}
+              className="zoom-hover-sm"
+              style={{
+                background: '#FFFFFF',
+                border: 'none',
+                color: '#0369A1',
+                borderRadius: '10px',
+                padding: '0.65rem 1.15rem',
+                fontSize: '0.875rem',
+                fontWeight: 700,
+                cursor: 'pointer',
+                boxShadow: '0 4px 14px rgba(0,0,0,0.15)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.45rem'
+              }}
+            >
+              <PlusCircle size={16} />
+              Ghi nhận thanh toán
+            </button>
+          </div>
+        </div>
+      </div>
 
       {/* Row 1: Operational KPIs (4 cards) */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem' }}>
@@ -152,7 +231,7 @@ const ReceptionistDashboard = () => {
               </thead>
               <tbody>
                 {data.studentsNeedingPaymentReminder.map((item, idx) => (
-                  <tr key={idx} style={{ borderBottom: '1px solid #E2E8F0' }}>
+                  <tr key={idx} className="table-row-hover" style={{ borderBottom: '1px solid #E2E8F0' }}>
                     <td style={{ padding: '10px 12px' }}>
                       <div style={{ fontWeight: 600, color: '#0F172A' }}>{item.student?.fullName}</div>
                       <div style={{ color: '#64748B', fontSize: '0.75rem' }}>{item.student?.phone}</div>
@@ -171,7 +250,7 @@ const ReceptionistDashboard = () => {
                     </td>
                     <td style={{ padding: '10px 12px', textAlign: 'right' }}>
                       <button
-                        onClick={() => navigate(`/receptionist/tuition/${item._id}`)}
+                        onClick={() => navigate(`/receptionist/tuition/${item._id || item.invoiceId}`)}
                         style={{
                           display: 'inline-flex',
                           alignItems: 'center',
@@ -222,7 +301,7 @@ const ReceptionistDashboard = () => {
           {data.todayClasses && data.todayClasses.length > 0 ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
               {data.todayClasses.map((c, i) => (
-                <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.625rem 0.75rem', background: '#F8FAFC', borderRadius: '6px' }}>
+                <div key={i} className="list-item-hover" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.625rem 0.75rem', background: '#F8FAFC', borderRadius: '6px' }}>
                   <div>
                     <div style={{ fontWeight: 600, fontSize: '0.875rem', color: '#0F172A' }}>{c.className}</div>
                     <div style={{ color: '#64748B', fontSize: '0.75rem' }}>
@@ -263,7 +342,7 @@ const ReceptionistDashboard = () => {
           {data.recentPayments && data.recentPayments.length > 0 ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
               {data.recentPayments.map((p, i) => (
-                <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.625rem 0.75rem', background: '#F8FAFC', borderRadius: '6px' }}>
+                <div key={i} className="list-item-hover" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.625rem 0.75rem', background: '#F8FAFC', borderRadius: '6px' }}>
                   <div>
                     <div style={{ fontWeight: 600, fontSize: '0.875rem', color: '#0F172A' }}>{p.student?.fullName || 'Học viên'}</div>
                     <div style={{ color: '#64748B', fontSize: '0.75rem' }}>

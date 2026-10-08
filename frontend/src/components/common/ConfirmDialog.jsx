@@ -33,6 +33,7 @@ const ConfirmDialog = ({
     <div
       role="dialog"
       aria-modal="true"
+      className="modal-backdrop"
       style={{
         position: 'fixed',
         inset: 0,
@@ -45,16 +46,19 @@ const ConfirmDialog = ({
         padding: '1rem'
       }}
     >
-      <div style={{
-        background: '#FFFFFF',
-        borderRadius: 'var(--radius-lg, 8px)',
-        border: '1px solid var(--color-border-subtle, #E2E8F0)',
-        boxShadow: 'var(--shadow-lg, 0 10px 25px -5px rgba(0, 0, 0, 0.1))',
-        width: '100%',
-        maxWidth: '480px',
-        overflow: 'hidden',
-        animation: 'fadeIn 0.15s ease'
-      }}>
+      <div
+        className="modal-dialog"
+        style={{
+          background: '#FFFFFF',
+          borderRadius: 'var(--radius-lg, 8px)',
+          border: '1px solid var(--color-border-subtle, #E2E8F0)',
+          boxShadow: 'var(--shadow-lg, 0 10px 25px -5px rgba(0, 0, 0, 0.1))',
+          width: '100%',
+          maxWidth: '480px',
+          overflow: 'hidden',
+          animation: 'modalZoomIn 0.24s cubic-bezier(0.16, 1, 0.3, 1)'
+        }}
+      >
         {/* Header */}
         <div style={{
           padding: '1.25rem 1.5rem',

@@ -29,7 +29,6 @@ const ReceptionistLayout = () => {
     { path: '/receptionist/attendance', name: 'Điểm danh' },
     { path: '/receptionist/results',    name: 'Kết quả học tập' },
     { path: '/receptionist/tuition',    name: 'Học phí' },
-    { path: '/receptionist/payments',   name: 'Thanh toán' },
     { path: '/receptionist/notices',    name: 'Thông báo' },
   ];
 

@@ -74,6 +74,25 @@ const generateUniqueTeacherCode = async (session) => {
   return `${prefix}${paddedSeq}`;
 };
 
+// Helper to normalize teacher address safely (object or legacy string)
+const normalizeAddress = (addr) => {
+  if (!addr) {
+    return { street: '', ward: '', district: '', city: '' };
+  }
+  if (typeof addr === 'string') {
+    return { street: addr.trim(), ward: '', district: '', city: '' };
+  }
+  if (typeof addr === 'object') {
+    return {
+      street: typeof addr.street === 'string' ? addr.street.trim() : '',
+      ward: typeof addr.ward === 'string' ? addr.ward.trim() : '',
+      district: typeof addr.district === 'string' ? addr.district.trim() : '',
+      city: typeof addr.city === 'string' ? addr.city.trim() : '',
+    };
+  }
+  return { street: '', ward: '', district: '', city: '' };
+};
+
 // POST /api/teachers (Admin only)
 const createTeacher = async (req, res) => {
   const {
@@ -85,7 +104,8 @@ const createTeacher = async (req, res) => {
     address,
     specialization,
     status,
-    notes
+    notes,
+    avatar
   } = req.body;
 
   if (!fullName || !email || !phone) {
@@ -126,7 +146,8 @@ const createTeacher = async (req, res) => {
         email: normalizedEmail,
         password: passwordHash,
         role: 'Teacher',
-        status: 'active'
+        status: 'active',
+        avatar: avatar || ''
       }], userOpt);
 
       onRollback(async () => {
@@ -143,10 +164,11 @@ const createTeacher = async (req, res) => {
         email: normalizedEmail,
         phone: phone.trim(),
         gender: gender || 'other',
-        address: address || '',
+        address: normalizeAddress(address),
         specialization: Array.isArray(specialization) ? specialization : [],
         status: statusToSet,
-        notes: notes || ''
+        notes: notes || '',
+        avatar: avatar || ''
       }], teacherOpt);
 
       onRollback(async () => {
@@ -282,7 +304,8 @@ const updateTeacher = async (req, res) => {
     address,
     specialization,
     status,
-    notes
+    notes,
+    avatar
   } = req.body;
 
   try {
@@ -313,17 +336,19 @@ const updateTeacher = async (req, res) => {
     await executeWithSafety(async (session, onRollback) => {
       const oldEmail = teacher.email;
       const oldName = teacher.fullName;
+      const oldAvatar = teacher.avatar;
 
-      if (isEmailChanging || fullName) {
+      if (isEmailChanging || fullName || avatar !== undefined) {
         const userUpdate = {};
         if (isEmailChanging) userUpdate.email = newEmail;
         if (fullName) userUpdate.name = fullName.trim();
+        if (avatar !== undefined) userUpdate.avatar = avatar;
 
         const opt = session ? { session } : {};
         await User.findByIdAndUpdate(teacher.userId, userUpdate, opt);
 
         onRollback(async () => {
-          await User.findByIdAndUpdate(teacher.userId, { email: oldEmail, name: oldName });
+          await User.findByIdAndUpdate(teacher.userId, { email: oldEmail, name: oldName, avatar: oldAvatar });
         });
       }
 
@@ -331,10 +356,11 @@ const updateTeacher = async (req, res) => {
       if (isEmailChanging) teacher.email = newEmail;
       if (phone) teacher.phone = phone.trim();
       if (gender) teacher.gender = gender;
-      if (address !== undefined) teacher.address = address;
+      if (address !== undefined) teacher.address = normalizeAddress(address);
       if (specialization && Array.isArray(specialization)) teacher.specialization = specialization;
       if (status && ['active', 'inactive'].includes(status)) teacher.status = status;
       if (notes !== undefined) teacher.notes = notes;
+      if (avatar !== undefined) teacher.avatar = avatar;
 
       const opt = session ? { session } : {};
       await teacher.save(opt);

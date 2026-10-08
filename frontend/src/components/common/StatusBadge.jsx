@@ -46,7 +46,9 @@ const StatusBadge = ({ status, type = 'academic', customLabel }) => {
   };
 
   return (
-    <span style={{
+    <span
+      className="status-badge"
+      style={{
       display: 'inline-flex',
       alignItems: 'center',
       padding: '3px 8px',

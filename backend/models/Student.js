@@ -56,6 +56,10 @@ const studentSchema = new mongoose.Schema({
   notes: {
     type: String,
     default: ''
+  },
+  avatar: {
+    type: String,
+    default: ''
   }
 }, { timestamps: true });
 

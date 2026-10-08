@@ -282,18 +282,34 @@ const TeacherList = () => {
                   <td>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
                       <div style={{
-                        width: '30px',
-                        height: '30px',
+                        width: '32px',
+                        height: '32px',
                         borderRadius: '50%',
                         backgroundColor: '#EFF6FF',
                         color: '#2563EB',
+                        border: '1px solid #BFDBFE',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
                         fontWeight: 600,
-                        fontSize: '0.8125rem'
+                        fontSize: '0.8125rem',
+                        flexShrink: 0,
+                        overflow: 'hidden'
                       }}>
-                        {teacher.fullName?.charAt(0).toUpperCase()}
+                        {teacher.avatar ? (
+                          <img
+                            src={teacher.avatar}
+                            alt={teacher.fullName}
+                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                            onError={(e) => {
+                              e.target.style.display = 'none';
+                              if (e.target.nextSibling) e.target.nextSibling.style.display = 'block';
+                            }}
+                          />
+                        ) : null}
+                        <span style={{ display: teacher.avatar ? 'none' : 'block' }}>
+                          {teacher.fullName?.charAt(0).toUpperCase()}
+                        </span>
                       </div>
                       <span style={{ fontWeight: 600, color: '#0F172A' }}>{teacher.fullName}</span>
                     </div>
@@ -388,20 +404,25 @@ const TeacherList = () => {
 
       {/* Modal: Add / Edit Teacher (Admin Only) */}
       {showModal && canManageTeachers && (
-        <div style={{
-          position: 'fixed',
-          top: 0, left: 0, right: 0, bottom: 0,
-          backgroundColor: 'rgba(0, 0, 0, 0.5)',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          zIndex: 9999,
-          padding: '1rem'
-        }}>
-          <div style={{
-            background: '#FFFFFF',
-            width: '100%',
-            maxWidth: '650px',
+        <div
+          className="modal-backdrop"
+          style={{
+            position: 'fixed',
+            top: 0, left: 0, right: 0, bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            zIndex: 9999,
+            padding: '1rem'
+          }}
+        >
+          <div
+            className="modal-dialog"
+            style={{
+              background: '#FFFFFF',
+              width: '100%',
+              maxWidth: '650px',
             maxHeight: '90vh',
             overflowY: 'auto',
             padding: '1.75rem',

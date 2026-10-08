@@ -292,18 +292,34 @@ const StudentList = () => {
                   <td>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
                       <div style={{
-                        width: '30px',
-                        height: '30px',
+                        width: '32px',
+                        height: '32px',
                         borderRadius: '50%',
                         backgroundColor: '#EFF6FF',
                         color: '#2563EB',
+                        border: '1px solid #BFDBFE',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
                         fontWeight: 600,
-                        fontSize: '0.8125rem'
+                        fontSize: '0.8125rem',
+                        flexShrink: 0,
+                        overflow: 'hidden'
                       }}>
-                        {student.fullName?.charAt(0).toUpperCase()}
+                        {student.avatar ? (
+                          <img
+                            src={student.avatar}
+                            alt={student.fullName}
+                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                            onError={(e) => {
+                              e.target.style.display = 'none';
+                              if (e.target.nextSibling) e.target.nextSibling.style.display = 'block';
+                            }}
+                          />
+                        ) : null}
+                        <span style={{ display: student.avatar ? 'none' : 'block' }}>
+                          {student.fullName?.charAt(0).toUpperCase()}
+                        </span>
                       </div>
                       <span style={{ fontWeight: 600, color: '#0F172A' }}>{student.fullName}</span>
                     </div>
@@ -383,17 +399,20 @@ const StudentList = () => {
 
       {/* Modal: Add / Edit Student */}
       {showModal && (
-        <div style={{
-          position: 'fixed',
-          top: 0, left: 0, right: 0, bottom: 0,
-          backgroundColor: 'rgba(0, 0, 0, 0.5)',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          zIndex: 9999,
-          padding: '1rem'
-        }}>
-          <div className="glass-panel" style={{
+        <div
+          className="modal-backdrop"
+          style={{
+            position: 'fixed',
+            top: 0, left: 0, right: 0, bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            zIndex: 9999,
+            padding: '1rem'
+          }}
+        >
+          <div className="glass-panel modal-dialog" style={{
             background: 'var(--bg-secondary)',
             width: '100%',
             maxWidth: '650px',

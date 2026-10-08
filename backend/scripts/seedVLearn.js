@@ -127,12 +127,12 @@ async function seed() {
 
   // 6 Teachers
   const teacherConfigs = [
-    { name: 'Nguyễn Hoàng Anh', email: 'teacher@vlearn.edu.vn', gender: 'male', spec: ['listening', 'speaking'] },
-    { name: 'Trần Thu Hà', email: 'teacher.ha@vlearn.edu.vn', gender: 'female', spec: ['reading', 'writing'] },
-    { name: 'David Miller', email: 'teacher.david@vlearn.edu.vn', gender: 'male', spec: ['speaking', 'listening'] },
-    { name: 'Lê Thị Mai', email: 'teacher.mai@vlearn.edu.vn', gender: 'female', spec: ['writing', 'reading'] },
-    { name: 'Phạm Minh Đức', email: 'teacher.duc@vlearn.edu.vn', gender: 'male', spec: ['listening', 'reading'] },
-    { name: 'Sarah Jenkins', email: 'teacher.sarah@vlearn.edu.vn', gender: 'female', spec: ['speaking', 'writing'] },
+    { name: 'Nguyễn Hoàng Anh', email: 'teacher@vlearn.edu.vn', gender: 'male', spec: ['listening', 'speaking'], avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=256&h=256&q=80' },
+    { name: 'Trần Thu Hà', email: 'teacher.ha@vlearn.edu.vn', gender: 'female', spec: ['reading', 'writing'], avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=256&h=256&q=80' },
+    { name: 'David Miller', email: 'teacher.david@vlearn.edu.vn', gender: 'male', spec: ['speaking', 'listening'], avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=256&h=256&q=80' },
+    { name: 'Lê Thị Mai', email: 'teacher.mai@vlearn.edu.vn', gender: 'female', spec: ['writing', 'reading'], avatar: 'https://images.unsplash.com/photo-1580894732488-825528d9ffb6?auto=format&fit=crop&w=256&h=256&q=80' },
+    { name: 'Phạm Minh Đức', email: 'teacher.duc@vlearn.edu.vn', gender: 'male', spec: ['listening', 'reading'], avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=256&h=256&q=80' },
+    { name: 'Sarah Jenkins', email: 'teacher.sarah@vlearn.edu.vn', gender: 'female', spec: ['speaking', 'writing'], avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=256&h=256&q=80' },
   ];
 
   const teacherUsers = [];
@@ -144,6 +144,7 @@ async function seed() {
       password: teachPwd,
       role: 'Teacher',
       status: 'active',
+      avatar: cfg.avatar,
       createdAt: getRelativeDate(-70 + i * 5),
     });
     teacherUsers.push(u);
@@ -159,6 +160,23 @@ async function seed() {
     'Hoàng Bách', 'Bùi Lan Hương', 'Đặng Nhật Minh', 'Đỗ Thùy Dung', 'Ngô Kiến Huy',
   ];
 
+  const maleAvatars = [
+    'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=256&h=256&q=80',
+    'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=256&h=256&q=80',
+    'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=256&h=256&q=80',
+    'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&w=256&h=256&q=80',
+    'https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?auto=format&fit=crop&w=256&h=256&q=80',
+    'https://images.unsplash.com/photo-1501196354995-cbb51c65aaea?auto=format&fit=crop&w=256&h=256&q=80',
+  ];
+  const femaleAvatars = [
+    'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=256&h=256&q=80',
+    'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=256&h=256&q=80',
+    'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=256&h=256&q=80',
+    'https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?auto=format&fit=crop&w=256&h=256&q=80',
+    'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=256&h=256&q=80',
+    'https://images.unsplash.com/photo-1524502397800-2eeaad7c3fe5?auto=format&fit=crop&w=256&h=256&q=80',
+  ];
+
   const studentUsers = [];
   for (let i = 0; i < studentNames.length; i++) {
     const isPrimaryDemo = i === 0;
@@ -169,12 +187,18 @@ async function seed() {
       ? 'inactive.student@vlearn.edu.vn'
       : `student${i + 1}@vlearn.edu.vn`;
 
+    const isMale = i % 2 === 0;
+    const avatar = isMale
+      ? maleAvatars[Math.floor(i / 2) % maleAvatars.length]
+      : femaleAvatars[Math.floor(i / 2) % femaleAvatars.length];
+
     const u = await User.create({
       name: studentNames[i],
       email,
       password: studPwd,
       role: 'Student',
       status: isInactiveDemo ? 'inactive' : 'active',
+      avatar,
       createdAt: getRelativeDate(-60 + Math.floor(i * 1.5)),
     });
     studentUsers.push(u);
@@ -197,6 +221,7 @@ async function seed() {
       gender: cfg.gender,
       specialization: cfg.spec,
       status: 'active',
+      avatar: cfg.avatar,
       createdAt: teacherUsers[i].createdAt,
     });
     teacherDocs.push(t);
@@ -234,6 +259,7 @@ async function seed() {
         phone: `09876540${String(i + 1).padStart(2, '0')}`,
       },
       academicStatus,
+      avatar: studentUsers[i].avatar,
       createdAt: studentUsers[i].createdAt,
     });
     studentDocs.push(s);

@@ -1,7 +1,10 @@
 const upload = require('./uploadMiddleware');
 
 const handleMaterialUpload = (req, res, next) => {
-  upload.single('file')(req, res, (err) => {
+  upload.fields([
+    { name: 'file', maxCount: 1 },
+    { name: 'material', maxCount: 1 },
+  ])(req, res, (err) => {
     if (err) {
       if (err.code === 'LIMIT_FILE_SIZE') {
         return res.status(422).json({
@@ -16,6 +19,9 @@ const handleMaterialUpload = (req, res, next) => {
       return res.status(400).json({
         message: err.message || 'Lỗi xử lý tệp tải lên',
       });
+    }
+    if (req.files) {
+      req.file = req.files.file?.[0] || req.files.material?.[0] || null;
     }
     next();
   });

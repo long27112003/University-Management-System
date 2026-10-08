@@ -93,7 +93,7 @@ const getClasses = async (req, res) => {
 
     const [classes, total] = await Promise.all([
       Class.find(query)
-        .populate('teacher', 'fullName teacherCode email phone specialization')
+        .populate('teacher', 'fullName teacherCode email phone specialization avatar')
         .sort('-createdAt')
         .skip(skip)
         .limit(limit),
@@ -261,7 +261,7 @@ const getClassById = async (req, res) => {
   try {
     const classDoc = await Class.findById(req.params.id).populate(
       'teacher',
-      'fullName teacherCode email phone specialization'
+      'fullName teacherCode email phone specialization avatar'
     );
 
     if (!classDoc) {

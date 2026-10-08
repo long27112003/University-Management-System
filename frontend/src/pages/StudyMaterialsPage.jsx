@@ -134,6 +134,7 @@ const StudyMaterialsPage = () => {
       const formData = new FormData();
       formData.append('title', uploadData.title);
       formData.append('description', uploadData.description);
+      formData.append('file', uploadData.file);
       formData.append('material', uploadData.file);
 
       await axios.post(
@@ -265,6 +266,7 @@ const StudyMaterialsPage = () => {
           {materials.map((m) => (
             <div
               key={m._id}
+              className="card-panel zoom-hover-sm"
               style={{
                 background: '#FFFFFF',
                 borderRadius: 'var(--radius-lg, 8px)',
@@ -339,26 +341,32 @@ const StudyMaterialsPage = () => {
 
       {/* Upload Modal */}
       {showUploadModal && (
-        <div style={{
-          position: 'fixed',
-          inset: 0,
-          backgroundColor: 'rgba(15, 23, 42, 0.45)',
-          backdropFilter: 'blur(2px)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 1000,
-          padding: '1rem'
-        }}>
-          <div style={{
-            background: '#FFFFFF',
-            borderRadius: 'var(--radius-lg, 8px)',
-            border: '1px solid var(--color-border-subtle, #E2E8F0)',
-            boxShadow: 'var(--shadow-lg)',
-            width: '100%',
-            maxWidth: '480px',
-            padding: '1.75rem'
-          }}>
+        <div
+          className="modal-backdrop"
+          style={{
+            position: 'fixed',
+            inset: 0,
+            backgroundColor: 'rgba(15, 23, 42, 0.45)',
+            backdropFilter: 'blur(2px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000,
+            padding: '1rem'
+          }}
+        >
+          <div
+            className="modal-dialog"
+            style={{
+              background: '#FFFFFF',
+              borderRadius: 'var(--radius-lg, 8px)',
+              border: '1px solid var(--color-border-subtle, #E2E8F0)',
+              boxShadow: 'var(--shadow-lg)',
+              width: '100%',
+              maxWidth: '480px',
+              padding: '1.75rem'
+            }}
+          >
             <h3 style={{ fontSize: '1.125rem', fontWeight: 600, color: '#0F172A', marginBottom: '1.25rem' }}>
               Tải Lên Tài Liệu Cho Lớp
             </h3>

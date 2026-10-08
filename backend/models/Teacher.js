@@ -35,8 +35,10 @@ const teacherSchema = new mongoose.Schema({
     default: 'other'
   },
   address: {
-    type: String,
-    default: ''
+    street: { type: String, default: '' },
+    ward: { type: String, default: '' },
+    district: { type: String, default: '' },
+    city: { type: String, default: '' }
   },
   specialization: [{
     type: String,
@@ -48,6 +50,10 @@ const teacherSchema = new mongoose.Schema({
     default: 'active'
   },
   notes: {
+    type: String,
+    default: ''
+  },
+  avatar: {
     type: String,
     default: ''
   }

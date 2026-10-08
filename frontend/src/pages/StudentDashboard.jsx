@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import {
   BookOpen, Calendar, CheckSquare, Award, DollarSign,
-  Clock, AlertCircle, ChevronRight, CheckCircle2
+  Clock, AlertCircle, ChevronRight, CheckCircle2, Sparkles
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
+import { AuthContext } from '../context/AuthContext';
 import {
   PageHeader, StatCard, StatusBadge, SkillBadge,
   LoadingSkeleton, ErrorState
@@ -26,6 +27,7 @@ const formatCurrency = (amount) => {
 };
 
 const StudentDashboard = () => {
+  const { user } = useContext(AuthContext);
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -77,11 +79,112 @@ const StudentDashboard = () => {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.75rem' }}>
-      {/* Page Header */}
-      <PageHeader
-        title="Bảng Điều Khiển Học Viên"
-        subtitle="Theo dõi quá trình học tập, thời khóa biểu, chuyên cần và học phí cá nhân"
-      />
+      {/* Welcome Hero Banner */}
+      <div className="hero-welcome-banner">
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1.25rem', position: 'relative', zIndex: 1 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
+            {user?.avatar ? (
+              <img
+                src={user.avatar}
+                alt={user?.fullName || 'Học viên'}
+                style={{
+                  width: '64px',
+                  height: '64px',
+                  borderRadius: '50%',
+                  objectFit: 'cover',
+                  border: '3px solid rgba(255, 255, 255, 0.45)',
+                  boxShadow: '0 8px 16px rgba(0,0,0,0.25)'
+                }}
+              />
+            ) : (
+              <div style={{
+                width: '64px',
+                height: '64px',
+                borderRadius: '50%',
+                background: 'rgba(255,255,255,0.25)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#FFFFFF',
+                fontSize: '1.5rem',
+                fontWeight: 800,
+                border: '3px solid rgba(255, 255, 255, 0.45)',
+                boxShadow: '0 8px 16px rgba(0,0,0,0.25)'
+              }}>
+                {user?.fullName?.charAt(0) || 'H'}
+              </div>
+            )}
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.35rem' }}>
+                <span style={{
+                  fontSize: '0.75rem',
+                  fontWeight: 700,
+                  letterSpacing: '0.05em',
+                  textTransform: 'uppercase',
+                  background: 'rgba(255, 255, 255, 0.2)',
+                  padding: '2px 8px',
+                  borderRadius: '999px',
+                  backdropFilter: 'blur(4px)'
+                }}>
+                  Học viên VLearn
+                </span>
+                <span style={{ fontSize: '0.85rem', opacity: 0.9 }}>🎯 IELTS Road to 7.5+</span>
+              </div>
+              <h2 style={{ fontSize: '1.5rem', fontWeight: 800, margin: 0, color: '#FFFFFF', letterSpacing: '-0.02em' }}>
+                Xin chào, {user?.fullName || 'Học viên'}! 👋
+              </h2>
+              <p style={{ margin: '0.25rem 0 0', fontSize: '0.875rem', opacity: 0.9, color: 'rgba(255, 255, 255, 0.9)' }}>
+                Chào mừng bạn quay trở lại! Bạn đang tham gia {data.activeClassesCount || 0} lớp học và có {data.upcomingSessions?.length || 0} buổi học sắp diễn ra.
+              </p>
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', gap: '0.75rem' }}>
+            <button
+              onClick={() => navigate('/student/schedule')}
+              className="zoom-hover-sm"
+              style={{
+                background: 'rgba(255, 255, 255, 0.15)',
+                border: '1px solid rgba(255, 255, 255, 0.35)',
+                color: '#FFFFFF',
+                borderRadius: '10px',
+                padding: '0.6rem 1rem',
+                fontSize: '0.875rem',
+                fontWeight: 600,
+                cursor: 'pointer',
+                backdropFilter: 'blur(8px)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.4rem'
+              }}
+            >
+              <Calendar size={16} />
+              Xem thời khóa biểu
+            </button>
+            <button
+              onClick={() => navigate('/student/materials')}
+              className="zoom-hover-sm"
+              style={{
+                background: '#FFFFFF',
+                border: 'none',
+                color: '#1E3A8A',
+                borderRadius: '10px',
+                padding: '0.6rem 1rem',
+                fontSize: '0.875rem',
+                fontWeight: 700,
+                cursor: 'pointer',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.4rem'
+              }}
+            >
+              <BookOpen size={16} />
+              Tài liệu học tập
+            </button>
+          </div>
+        </div>
+      </div>
 
       {/* Row 1: KPI Cards */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem' }}>
@@ -151,6 +254,7 @@ const StudentDashboard = () => {
               {data.weeklySchedule.map((item, idx) => (
                 <div
                   key={idx}
+                  className="list-item-hover"
                   style={{
                     padding: '0.75rem',
                     borderRadius: '6px',
@@ -212,6 +316,7 @@ const StudentDashboard = () => {
               {data.activeClasses.map((c, idx) => (
                 <div
                   key={idx}
+                  className="list-item-hover"
                   style={{
                     padding: '0.75rem',
                     borderRadius: '6px',

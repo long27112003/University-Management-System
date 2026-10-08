@@ -33,7 +33,6 @@ const AdminLayout = () => {
     { path: '/admin/attendance', name: 'Điểm danh' },
     { path: '/admin/results',    name: 'Kết quả học tập' },
     { path: '/admin/tuition',    name: 'Học phí' },
-    { path: '/admin/payments',   name: 'Thanh toán' },
     { path: '/admin/notices',    name: 'Thông báo' },
     { path: '/admin/materials',  name: 'Tài liệu' },
     { path: '/admin/accounts',   name: 'Tài khoản' },

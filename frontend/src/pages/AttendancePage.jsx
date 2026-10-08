@@ -512,10 +512,44 @@ const AttendancePage = () => {
                         {item.studentCode}
                       </td>
                       <td>
-                        <div style={{ fontWeight: '600' }}>{item.fullName}</div>
-                        {item.phone && (
-                          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>SĐT: {item.phone}</div>
-                        )}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
+                          <div style={{
+                            width: '32px',
+                            height: '32px',
+                            borderRadius: '50%',
+                            backgroundColor: '#EFF6FF',
+                            color: '#2563EB',
+                            border: '1px solid #BFDBFE',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontWeight: 600,
+                            fontSize: '0.8rem',
+                            flexShrink: 0,
+                            overflow: 'hidden'
+                          }}>
+                            {item.avatar ? (
+                              <img
+                                src={item.avatar}
+                                alt={item.fullName}
+                                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                onError={(e) => {
+                                  e.target.style.display = 'none';
+                                  if (e.target.nextSibling) e.target.nextSibling.style.display = 'block';
+                                }}
+                              />
+                            ) : null}
+                            <span style={{ display: item.avatar ? 'none' : 'block' }}>
+                              {item.fullName?.charAt(0).toUpperCase()}
+                            </span>
+                          </div>
+                          <div>
+                            <div style={{ fontWeight: '600' }}>{item.fullName}</div>
+                            {item.phone && (
+                              <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>SĐT: {item.phone}</div>
+                            )}
+                          </div>
+                        </div>
                       </td>
                       <td>
                         {/* Status Pills */}

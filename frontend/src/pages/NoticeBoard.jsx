@@ -133,14 +133,17 @@ const NoticeBoard = () => {
 
       {/* Notice Form (Create / Edit) */}
       {showForm && canCreateOrEdit && (
-        <div style={{
-          background: '#FFFFFF',
-          borderRadius: 'var(--radius-lg, 8px)',
-          border: '1px solid var(--color-border-subtle, #E2E8F0)',
-          borderLeft: '4px solid var(--color-primary-600, #2563EB)',
-          padding: '1.5rem',
-          boxShadow: 'var(--shadow-card)'
-        }}>
+        <div
+          className="card-panel fade-slide-up"
+          style={{
+            background: '#FFFFFF',
+            borderRadius: 'var(--radius-lg, 8px)',
+            border: '1px solid var(--color-border-subtle, #E2E8F0)',
+            borderLeft: '4px solid var(--color-primary-600, #2563EB)',
+            padding: '1.5rem',
+            boxShadow: 'var(--shadow-card)'
+          }}
+        >
           <h3 style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '1rem', color: '#0F172A' }}>
             {editingId ? 'Chỉnh Sửa Thông Báo' : 'Tạo Thông Báo Mới'}
           </h3>
@@ -232,6 +235,7 @@ const NoticeBoard = () => {
             return (
               <div
                 key={notice._id}
+                className="card-panel zoom-hover-sm"
                 style={{
                   background: '#FFFFFF',
                   borderRadius: 'var(--radius-lg, 8px)',
